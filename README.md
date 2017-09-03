@@ -13,7 +13,7 @@ which can contain both sensors and provide control of the physical space.
 Libraries that make it easy to add to the framework will be provided.
 These will include Python modules, arduino libraries, etc. The primary
 implementation languages will be Python, C, and probably some
-avascript/Typescript for user interfaces.
+Javascript/Typescript for user interfaces.
 
 Full documentation for the platform, including message formats, circuit
 diagrams, and more can be found on the TinkerMill wiki.
