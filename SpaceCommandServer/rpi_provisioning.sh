@@ -6,6 +6,7 @@ ARG1=${1:-no_args_passed}
 
 #apt-get install -y git
 
+apt-get install -y emacs
 
 if [ $ARG1 = "install_vim" ]
 then
@@ -32,5 +33,16 @@ then
 
 	echo "---------- Copy vimrc to home directory --------"
 	cp "$PWD/provisioning_files/vimrc" /home/pi/.vimrc
+
+  # Install coloschemes
+  echo "----------- Download colorschemes for vim -----------------"
+  echo " Vundle manages colorscheme, run :PluginInstall when first starting vim to laod "
+  
+  # Add a line to .bashrc to enable 256 color in terminal
+  
+  echo -e "\n#Enable 256 color in terminal\nexport TERM=xterm-256color" >> /home/pi/.bashrc # sets up terminal so advanced colorschemes will work
+
+
 fi
+
 

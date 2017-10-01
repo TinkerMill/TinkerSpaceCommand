@@ -19,6 +19,8 @@
  Plugin 'godlygeek/tabular'
  Plugin 'plasticboy/vim-markdown'
  Plugin 'sudar/vim-arduino-syntax'
+
+ Plugin 'Lokaltog/vim-distinguished'
  
  " LIST OF SUGGESTED PLUGINS
  " The following are examples of different formats supported.
