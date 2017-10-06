@@ -6,6 +6,7 @@ import sys
 import yaml
 from TinkerSpaceCommandServer.SpaceCommandServer import *
 from TinkerSpaceCommandServer.comms.MqttCommunicationProvider import *
+from TinkerSpaceCommandServer.processor.SensorProcessor import *
 
 # Read the configuration for the server.
 #
@@ -21,6 +22,7 @@ with open(sys.argv[1]) as fp:
   config = yaml.safe_load(fp)
 
 server = SpaceCommandServer(config)
+server.sensor_processor = SensorProcessor()
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
 server.start()
 

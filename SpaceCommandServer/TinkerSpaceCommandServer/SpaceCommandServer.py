@@ -16,10 +16,13 @@ class SpaceCommandServer:
 
     self.communicationProviders = []
 
+    self.sensor_processor = None
+
   def start(self):
     print("Starting Tinker Space Command Server")
 
     for provider in self.communicationProviders:
+      provider.sensor_processor = self.sensor_processor
       provider.start()
 
       # Set the ^C handler.

@@ -5,6 +5,7 @@
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 import paho.mqtt.client as mqtt
 import time
+from datetime import datetime
 import json
 
 class MqttCommunicationProvider:
@@ -29,6 +30,9 @@ class MqttCommunicationProvider:
 
     # Is the MQTT client connected to the broker?
     self.mqtt_client_connected = False
+
+    # The server will set this field.
+    self.sensor_processor = None
 
   def start(self):
     print("Starting MQTT Communication Provider")
@@ -88,6 +92,7 @@ class MqttCommunicationProvider:
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
+    print("Subscribing to sensor input topic {}".format(self.MQTT_SENSOR_DATA_INPUT_TOPIC))
     self.mqtt_client.subscribe(self.MQTT_SENSOR_DATA_INPUT_TOPIC)
     
     # Mark the client as connected.
@@ -95,7 +100,11 @@ class MqttCommunicationProvider:
 
   def on_new_mqtt_message(self, mqtt_client, userdata, msg):
     # A new MQTT message has come in.
+
+    dt = time.time()
     
     # Decode the JSON message that has come from sensor nodes.
     # The JSON string is encoded in UTF-8 characters.
-    json_data = json.loads(msg.payload.decode('utf-8'))
+    message = json.loads(msg.payload.decode('utf-8'))
+
+    self.sensor_processor.process_sensor_input(message, dt)
