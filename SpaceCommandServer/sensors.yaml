@@ -1,0 +1,22 @@
+sensors:
+  - externalId: sensor.esp8266.FE13DE
+    name: DHT 22 sensor 1
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+
+physicalLocations:
+  - externalId: tinkermill.bay.main
+    name: TinkerMill Main Bay
+    description: The large main room of Tinkermill
+
+sensorDetails:
+  - externalId: sensor.esp8266.dht22
+    name: ESP-8266 based sensor using the DHT-22
+    description: ESP-8266 based sensor using the DHT-22
+    channels:
+      - externalId: temperature
+        measurementType: type.measurement.temperature
+	measurementUnit: unit.measurement.temperature.fahrenheit
+      - externalId: temperature
+        measurementType: type.measurement.humidity
+	measurementUnit: unit.measurement.humidity.relative
