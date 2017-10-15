@@ -33,7 +33,7 @@ class SensorDetailEntityDescription(EntityDescription):
   def __init__(self, external_id, name, description, channels):
     EntityDescription.__init__(self, external_id, name, description)
 
-    # channls is a map from external IDs of channels to their channel detail.
+    # channels is a map from external IDs of channels to their channel detail.
     self.channels = channels
 
 class SensorChannelDetail(EntityDescription):

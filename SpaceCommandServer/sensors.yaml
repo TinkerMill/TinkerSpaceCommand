@@ -15,8 +15,13 @@ sensorDetails:
     description: ESP-8266 based sensor using the DHT-22
     channels:
       - externalId: temperature
+        name: Temperature Channel
+        description: The temperature channel of a DHT 22
         measurementType: type.measurement.temperature
-	measurementUnit: unit.measurement.temperature.fahrenheit
-      - externalId: temperature
+        measurementUnit: unit.measurement.temperature.fahrenheit
+      - externalId: humidity
+        name: Humidity Channel
+        description: The humidity channel of a DHT 22
         measurementType: type.measurement.humidity
-	measurementUnit: unit.measurement.humidity.relative
+        measurementUnit: unit.measurement.humidity.relative
+

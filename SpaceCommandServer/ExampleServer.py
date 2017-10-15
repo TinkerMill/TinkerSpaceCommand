@@ -7,6 +7,7 @@ import yaml
 from TinkerSpaceCommandServer.SpaceCommandServer import *
 from TinkerSpaceCommandServer.comms.MqttCommunicationProvider import *
 from TinkerSpaceCommandServer.processor.SensorProcessor import *
+from TinkerSpaceCommandServer.models.ModelRegistry import *
 
 # Read the configuration for the server.
 #
@@ -20,6 +21,10 @@ if len(sys.argv) == 1:
 
 with open(sys.argv[1]) as fp:
   config = yaml.safe_load(fp)
+
+model_registry = EntityRegistry()
+model_importer = YamlEntityRegistryReader()
+model_importer.load_registry('sensors.yaml', model_registry)
 
 server = SpaceCommandServer(config)
 server.sensor_processor = SensorProcessor()

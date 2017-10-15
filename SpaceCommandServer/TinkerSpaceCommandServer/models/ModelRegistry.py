@@ -5,8 +5,14 @@
 # Written by Keith Hughes
 #
 
+from . import Models
+import yaml
+
 class EntityRegistry:
   def __init__(self):
+
+    # Map of sensor detail entities keyed by their external ID
+    self.sensor_details = {}
 
     # Map of sensor entities keyed by their external ID
     self.sensors = {}
@@ -14,15 +20,26 @@ class EntityRegistry:
     # Map of sensed entities keyed by their external ID
     self.sensed_entities = {}
 
+  def add_sensor_detail(self, sensor_detail_entity):
+    """Add in a new sensor detail entity to the registry.
+    """
+
+    print(sensor_detail_entity.__dict__)
+    self.sensor_details[sensor_detail_entity.external_id] = sensor_detail_entity
+
   def add_sensor(self, sensor_entity):
     """Add in a new sensor entity to the registry.
     """
 
+    print(sensor_entity.__dict__)
     self.sensors[sensor_entity.external_id] = sensor_entity
 
   def add_sensed_entity(self, sensed_entity):
     """Add in a new sensed entity into the registry.
     """
+
+    print(sensed_entity.__dict__)
+    self.sensed_entities[sensed_entity.external_id] = sensed_entity
 
 class YamlEntityRegistryReader:
   """An entity registry reader that uses YAML as the file format.
@@ -35,18 +52,59 @@ class YamlEntityRegistryReader:
     with open(sensor_description_file_path) as fp:
       descriptions = yaml.safe_load(fp)
 
+      self.read_sensor_details(descriptions, entity_registry)
       self.read_sensor_descriptions(descriptions, entity_registry)
       self.read_physical_location_descriptions(descriptions, entity_registry)
 
-  def read_sensor_descriptions(self, descriptions, entity_registry):
-    for sensor_description in descriptions["sensors"]:
-      external_id = sensor_description["externalId"]
-      name = sensor_description["name"]
-      description = sensor_description["description"]
+  def read_sensor_details(self, descriptions, entity_registry):
+    """Read the sensor details entities from the entity descriptions.
+    """
+    
+    for detail in descriptions["sensorDetails"]:
+      external_id = detail["externalId"]
+      name = detail["name"]
+      description = detail["description"]
 
-      sensor_detail = sensor_description["sensorDetail"]
+      channels = self.read_channel_details(detail)
+
+      entity_registry.add_sensor_detail(Models.SensorDetailEntityDescription(external_id, name, description, channels))
+
+  def read_channel_details(self, sensor_detail):
+    """Read the channel details from a sensor detail description.
+       Returns a map of channel IDs to the channel detail.
+    """
+
+    channels = {}
+    for detail in sensor_detail["channels"]:
+      external_id = detail["externalId"]
+      name = detail["name"]
+      description = detail["description"]
+      measurement_type = detail["measurementType"]
+      measurement_unit = detail["measurementUnit"]
+
+      channels[external_id] = Models.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
+
+    return channels
+  
+  def read_sensor_descriptions(self, descriptions, entity_registry):
+    """Read the sensor entities from the entity descriptions.
+    """
+    
+    for detail in descriptions["sensors"]:
+      external_id = detail["externalId"]
+      name = detail["name"]
+      description = detail["description"]
+
+      sensor_detail = detail["sensorDetail"]
+
+      entity_registry.add_sensor(Models.SensorEntityDescription(external_id, name, description, None))
       
   def read_physical_location_descriptions(self, descriptions, entity_registry):
+    for detail in descriptions["physicalLocations"]:
+      external_id = detail["externalId"]
+      name = detail["name"]
+      description = detail["description"]
 
+      entity_registry.add_sensed_entity(Models.PhysicalLocationEntityDescription(external_id, name, description))
 
   
