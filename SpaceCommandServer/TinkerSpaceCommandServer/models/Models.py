@@ -25,6 +25,16 @@ class SensorEntityDescription(EntityDescription):
     EntityDescription.__init__(self, external_id, name, description)
     self.sensor_details = sensor_details
 
+    # channel_associations is a map of channel IDs to the sensed item they will
+    # be sensing.
+    self.channel_associations = {}
+    
+  def add_channel_association(self, channel_id, sensed):
+    """Associate the channel ID with the item being sensed by that channel.
+    """
+    
+    self.channel_associations[channel_id] = sensed
+
 class SensorDetailEntityDescription(EntityDescription):
   """The details of a sensor.
      The details include the details of all the channels.

@@ -41,6 +41,14 @@ class EntityRegistry:
     print(sensed_entity.__dict__)
     self.sensed_entities[sensed_entity.external_id] = sensed_entity
 
+  def register_sensor_association(self, sensor, channel_ids, sensed):
+    """Associate the list of channel IDs for the sensor with the
+       item being sensed by those channels.
+    """
+
+    for channel_id in channel_ids:
+      sensor.add_channel_association(channel_id, sensed)
+
 class YamlEntityRegistryReader:
   """An entity registry reader that uses YAML as the file format.
   """
@@ -55,6 +63,7 @@ class YamlEntityRegistryReader:
       self.read_sensor_details(descriptions, entity_registry)
       self.read_sensor_descriptions(descriptions, entity_registry)
       self.read_physical_location_descriptions(descriptions, entity_registry)
+      self.read_sensor_associations(descriptions, entity_registry)
 
   def read_sensor_details(self, descriptions, entity_registry):
     """Read the sensor details entities from the entity descriptions.
@@ -84,6 +93,8 @@ class YamlEntityRegistryReader:
 
       channels[external_id] = Models.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
 
+      print(channels[external_id].__dict__)
+
     return channels
   
   def read_sensor_descriptions(self, descriptions, entity_registry):
@@ -95,9 +106,13 @@ class YamlEntityRegistryReader:
       name = detail["name"]
       description = detail["description"]
 
-      sensor_detail = detail["sensorDetail"]
+      sensor_detail_id = detail["sensorDetail"]
+      sensor_detail = entity_registry.sensor_details[sensor_detail_id]
 
-      entity_registry.add_sensor(Models.SensorEntityDescription(external_id, name, description, None))
+      if sensor_detail:
+        entity_registry.add_sensor(Models.SensorEntityDescription(external_id, name, description, sensor_detail))
+      else:
+        print("Sensor {} could not find sensor detail {}".format(external_id,  sensor_detail_id))
       
   def read_physical_location_descriptions(self, descriptions, entity_registry):
     for detail in descriptions["physicalLocations"]:
@@ -107,4 +122,19 @@ class YamlEntityRegistryReader:
 
       entity_registry.add_sensed_entity(Models.PhysicalLocationEntityDescription(external_id, name, description))
 
-  
+  def read_sensor_associations(self, descriptions, entity_registry):
+    for detail in descriptions["sensorAssociations"]:
+      sensor_id = detail["sensorId"]
+      sensed_id = detail["sensedId"]
+
+      sensor = entity_registry.sensors[sensor_id]
+      sensed = entity_registry.sensed_entities[sensed_id]
+
+      channel_ids = detail.get("channelIds", "*")
+      if channel_ids == "*":
+        channel_ids = list(sensor.sensor_details.channels.keys())
+      else:
+        channel_ids = channel_ids.split(":")
+
+      entity_registry.register_sensor_association(sensor, channel_ids, sensed)
+

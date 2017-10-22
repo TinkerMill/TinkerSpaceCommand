@@ -3,11 +3,25 @@ sensors:
     name: DHT 22 sensor 1
     description: foop
     sensorDetail: sensor.esp8266.dht22
+  - externalId: sensor.esp8266.123456
+    name: DHT 22 sensor 2
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
 
 physicalLocations:
   - externalId: tinkermill.bay.main
     name: TinkerMill Main Bay
     description: The large main room of Tinkermill
+  - externalId: tinkermill.bay.classroom
+    name: TinkerMill Classroom Bay
+    description: The classroom of Tinkermill
+
+sensorAssociations:
+  - sensorId: sensor.esp8266.FE13DE
+    channelIds: temperature:humidity
+    sensedId: tinkermill.bay.main
+  - sensorId: sensor.esp8266.123456
+    sensedId: tinkermill.bay.main
 
 sensorDetails:
   - externalId: sensor.esp8266.dht22
