@@ -2,9 +2,9 @@
 
 ARG1=${1:-no_args_passed}
 
-#apt-get update
+apt-get update
 
-#apt-get install -y git
+apt-get install -y git
 
 apt-get install -y emacs
 
@@ -23,7 +23,7 @@ then
 
 	echo "---------------- Install Nerdtree ----------"
 	# Install Nerdtree
-	git clone https://github.com/scrooloose/nerdtree.git /home/pi/.vim/bundle
+	git clone https://github.com/scrooloose/nerdtree.git /home/pi/.vim/bundle/nerdtree
 
 	echo "--------- Install Vundle --------"
   echo "--------- Launch vim and run :PluginInstall to finish the install -----------"
@@ -36,7 +36,7 @@ then
 
   # Install coloschemes
   echo "----------- Download colorschemes for vim -----------------"
-  echo " Vundle manages colorscheme, run :PluginInstall when first starting vim to laod "
+  echo " Vundle manages colorscheme, run :PluginInstall when first starting vim to load "
   
   # Add a line to .bashrc to enable 256 color in terminal
   
@@ -50,6 +50,7 @@ fi
 
 # -------------- Python ------------------------
 echo "---------- Install Python Packages -------------"
+pip3 install --upgrade pip
 pip3 install zeroconf
 pip3 install paho-mqtt
 pip3 install pyyaml
