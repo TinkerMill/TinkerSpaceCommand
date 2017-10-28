@@ -1,0 +1,41 @@
+sensors:
+  - externalId: sensor.esp8266.FE13DE
+    name: DHT 22 sensor 1
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+  - externalId: sensor.esp8266.123456
+    name: DHT 22 sensor 2
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+
+physicalLocations:
+  - externalId: tinkermill.bay.main
+    name: TinkerMill Main Bay
+    description: The large main room of Tinkermill
+  - externalId: tinkermill.bay.classroom
+    name: TinkerMill Classroom Bay
+    description: The classroom of Tinkermill
+
+sensorAssociations:
+  - sensorId: sensor.esp8266.FE13DE
+    channelIds: temperature:humidity
+    sensedId: tinkermill.bay.main
+  - sensorId: sensor.esp8266.123456
+    sensedId: tinkermill.bay.main
+
+sensorDetails:
+  - externalId: sensor.esp8266.dht22
+    name: ESP-8266 based sensor using the DHT-22
+    description: ESP-8266 based sensor using the DHT-22
+    channels:
+      - externalId: temperature
+        name: Temperature Channel
+        description: The temperature channel of a DHT 22
+        measurementType: type.measurement.temperature
+        measurementUnit: unit.measurement.temperature.fahrenheit
+      - externalId: humidity
+        name: Humidity Channel
+        description: The humidity channel of a DHT 22
+        measurementType: type.measurement.humidity
+        measurementUnit: unit.measurement.humidity.relative
+
