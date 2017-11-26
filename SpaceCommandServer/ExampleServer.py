@@ -28,6 +28,7 @@ with open(sys.argv[1]) as fp:
 model_registry = EntityRegistry()
 model_importer = YamlEntityRegistryReader()
 model_importer.load_registry('sensors.yaml', model_registry)
+model_registry.prepare_runtime_models()
 
 pdb.set_trace()
 
