@@ -20,25 +20,28 @@ class EntityRegistry:
     # Map of sensed entities keyed by their external ID
     self.sensed_entities = {}
 
+    # Map of active models for sensed entities keyed by their external ID
+    self.sensed_entity_active_models = {}
+
+    # Map of active models for sensor entities keyed by their external ID
+    self.sensor_entity_active_models = {}
+
   def add_sensor_detail(self, sensor_detail_entity):
     """Add in a new sensor detail entity to the registry.
     """
 
-    print(sensor_detail_entity.__dict__)
     self.sensor_details[sensor_detail_entity.external_id] = sensor_detail_entity
 
   def add_sensor(self, sensor_entity):
     """Add in a new sensor entity to the registry.
     """
 
-    print(sensor_entity.__dict__)
     self.sensors[sensor_entity.external_id] = sensor_entity
 
   def add_sensed_entity(self, sensed_entity):
     """Add in a new sensed entity into the registry.
     """
 
-    print(sensed_entity.__dict__)
     self.sensed_entities[sensed_entity.external_id] = sensed_entity
 
   def register_sensor_association(self, sensor, channel_ids, sensed):
@@ -49,6 +52,37 @@ class EntityRegistry:
     for channel_id in channel_ids:
       sensor.add_channel_association(channel_id, sensed)
 
+  def prepare_runtime_models(self):
+    """Prepare all the runtime models needed for all entities.
+    """
+
+    for sensed_entity_key in self.sensed_entities:
+      sensed_entity = self.sensed_entities[sensed_entity_key]
+
+      if type(sensed_entity).__name__ == "PhysicalLocationEntityDescription":
+        active_model = Models.PhysicalLocationActiveModel(sensed_entity)
+        
+      self.sensed_entity_active_models[sensed_entity_key] = active_model
+
+    for sensor_key in self.sensors:
+      sensor = self.sensors[sensor_key]
+
+      sensor_active_model = Models.SensorEntityActiveModel(sensor)
+      self.sensor_entity_active_models[sensor_key] = sensor_active_model
+      
+      sensor_details = sensor.sensor_details
+      
+      for channel_id, sensed_item in sensor.channel_associations.items():
+        print(channel_id)
+        print(sensed_item)
+
+        sensed_active_model = self.sensed_entity_active_models[sensed_entity.external_id]
+        print(sensed_active_model)
+        channel_detail = sensor_details.get_channel_detail(channel_id)
+        channel_active_model = Models.SensorActiveChannelModel(channel_id, channel_detail, sensed_active_model)
+
+        sensor_active_model.register_active_channel(channel_active_model)
+        
 class YamlEntityRegistryReader:
   """An entity registry reader that uses YAML as the file format.
   """
@@ -92,8 +126,6 @@ class YamlEntityRegistryReader:
       measurement_unit = detail["measurementUnit"]
 
       channels[external_id] = Models.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
-
-      print(channels[external_id].__dict__)
 
     return channels
   
