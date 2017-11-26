@@ -48,6 +48,8 @@ class SensorDetailEntityDescription(EntityDescription):
 
 class SensorChannelDetail(EntityDescription):
   """The detail of a channel.
+     Useful to be able to override the behavior of a specific channel.
+
   """
 
   def __init__(self, external_id, name, description, measurement_type, measurement_unit):

@@ -2,6 +2,7 @@
 # Written by Keith M. Hughes
 #
 
+import pdb
 import sys
 import yaml
 from TinkerSpaceCommandServer.SpaceCommandServer import *
@@ -13,6 +14,8 @@ from TinkerSpaceCommandServer.models.ModelRegistry import *
 #
 # The configuration file is in YAML.
 # be used in both languages.
+
+
 if len(sys.argv) == 1:
   print("usage: ExampleServer.py config.yaml")
   print("       where config.yaml is the YAML configuration file for the server.")
@@ -26,7 +29,10 @@ model_registry = EntityRegistry()
 model_importer = YamlEntityRegistryReader()
 model_importer.load_registry('sensors.yaml', model_registry)
 
+pdb.set_trace()
+
 server = SpaceCommandServer(config)
+# SL note setter needed for sensor_processor attribute
 server.sensor_processor = SensorProcessor()
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
 server.start()

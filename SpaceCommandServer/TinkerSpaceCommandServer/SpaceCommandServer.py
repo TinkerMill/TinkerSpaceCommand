@@ -7,7 +7,7 @@ import sys
 
 class SpaceCommandServer:
   """The tinkermill space command server takes communication from a variety of 
-     communication provider and routes sensor information to the proper sensor
+     communication providers and routes sensor information to the proper sensor
      processors.
   """
   
