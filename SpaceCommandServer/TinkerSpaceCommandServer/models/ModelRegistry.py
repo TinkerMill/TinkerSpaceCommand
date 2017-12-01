@@ -73,16 +73,18 @@ class EntityRegistry:
       sensor_details = sensor.sensor_details
       
       for channel_id, sensed_item in sensor.channel_associations.items():
-        print(channel_id)
-        print(sensed_item)
-
         sensed_active_model = self.sensed_entity_active_models[sensed_entity.external_id]
-        print(sensed_active_model)
         channel_detail = sensor_details.get_channel_detail(channel_id)
         channel_active_model = Models.SensorActiveChannelModel(channel_id, channel_detail, sensed_active_model)
 
         sensor_active_model.register_active_channel(channel_active_model)
-        
+
+  def get_sensor_active_model(self, sensor_id):
+    """Get the sensor active model associated with a given sensor ID.
+    """
+
+    return self.sensor_entity_active_models.get(sensor_id, None)
+
 class YamlEntityRegistryReader:
   """An entity registry reader that uses YAML as the file format.
   """

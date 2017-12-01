@@ -104,12 +104,14 @@ class SensorEntityActiveModel(ActiveModel):
     """Get the active channel by the channel ID.
     """
     
-    return self.active_channels[channel_id]
+    return self.active_channels.get(channel_id)
     
 class SensedEntityActiveModel(ActiveModel):
 
   def __init__(self, sensed_entity_description):
     self.sensed_entity_description = sensed_entity_description
+
+    self.sensor_values = {}
   
   
 class PhysicalLocationActiveModel(SensedEntityActiveModel):

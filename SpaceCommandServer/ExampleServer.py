@@ -28,7 +28,7 @@ model_importer.load_registry('sensors.yaml', model_registry)
 model_registry.prepare_runtime_models()
 
 server = SpaceCommandServer(config)
-server.sensor_processor = SensorProcessor()
+server.sensor_processor = SensorProcessor(model_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
 server.start()
 
