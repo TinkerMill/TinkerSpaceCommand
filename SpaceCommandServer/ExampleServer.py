@@ -33,8 +33,8 @@ model_registry.prepare_runtime_models()
 pdb.set_trace()
 
 server = SpaceCommandServer(config)
-# SL note setter needed for sensor_processor attribute
-server.sensor_processor = SensorProcessor()
+# SL note setter needed for sensor processor attribute
+server.sensor_processor = SensorProcessor(model_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
 server.start()
 
