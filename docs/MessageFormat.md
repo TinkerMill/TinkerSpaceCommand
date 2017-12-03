@@ -6,11 +6,9 @@ The message format for sensors is a JSON-based data structure encoded in UTF-8.
   data: {
     channel1: {
       value: the sensor value
-      type: ""
     },
     channel2: {
       value: the sensor value
-      type: ""
     },
     ...
   }
@@ -30,12 +28,10 @@ humidity values, the data section of the sensor packet will look like
 
 data: {
   "temperature": {
-    "value": 72,
-    "type": "temperature"
+    "value": 72
   },
   "humidity": {
-    "value": 22,
-    "type": "humidity"
+    "value": 22
   }
 }
 
@@ -54,15 +50,10 @@ platform could measure the moisture content for multiple pots of soil.
   "sensorId": "sensor.esp8266.FE13DE",
   "data": {
     "temperature": {
-      "value": 72,
-      "type": "temperature"
+      "value": 72
     },
     "humidity": {
-      "value": 22,
-      "type": "humidity"
+      "value": 22
     }
   }
 }
-
-
-

@@ -53,4 +53,4 @@ echo "---------- Install Python Packages -------------"
 pip3 install zeroconf
 pip3 install paho-mqtt
 pip3 install pyyaml
-
+pip3 install rx
