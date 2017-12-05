@@ -6,7 +6,7 @@
 #
 
 import pdb
-from . import Models
+from . import Entities
 import yaml
 
 class EntityRegistry:
@@ -61,14 +61,14 @@ class EntityRegistry:
       sensed_entity = self.sensed_entities[sensed_entity_key]
 
       if type(sensed_entity).__name__ == "PhysicalLocationEntityDescription":
-        active_model = Models.PhysicalLocationActiveModel(sensed_entity)
+        active_model = Entities.PhysicalLocationActiveModel(sensed_entity)
         
       self.sensed_entity_active_models[sensed_entity_key] = active_model
 
     for sensor_key in self.sensors:
       sensor = self.sensors[sensor_key]
 
-      sensor_active_model = Models.SensorEntityActiveModel(sensor)
+      sensor_active_model = Entities.SensorEntityActiveModel(sensor)
       self.sensor_entity_active_models[sensor_key] = sensor_active_model
       
       sensor_details = sensor.sensor_details
@@ -76,9 +76,10 @@ class EntityRegistry:
       for channel_id, sensed_item in sensor.channel_associations.items():
         sensed_active_model = self.sensed_entity_active_models[sensed_entity.external_id]
         channel_detail = sensor_details.get_channel_detail(channel_id)
-        channel_active_model = Models.SensorActiveChannelModel(channel_id, channel_detail, sensed_active_model)
+        channel_active_model = Entities.SensorActiveChannelModel(channel_id, channel_detail, sensed_active_model)
 
         sensor_active_model.register_active_channel(channel_active_model)
+        sensed_active_model.register_active_channel(channel_active_model)
 
   def get_sensor_active_model(self, sensor_id):
     """Get the sensor active model associated with a given sensor ID.
@@ -115,9 +116,13 @@ class YamlEntityRegistryReader:
 
       channels = self.read_channel_details(detail)
 
+<<<<<<< HEAD:SpaceCommandServer/TinkerSpaceCommandServer/models/ModelRegistry.py
       pdb.set_trace()
 
       entity_registry.add_sensor_detail(Models.SensorDetailEntityDescription(external_id, name, description, channels))
+=======
+      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, channels))
+>>>>>>> origin/keithhughes:SpaceCommandServer/TinkerSpaceCommandServer/entities/EntityRegistry.py
 
   def read_channel_details(self, sensor_detail):
     """Read the channel details from a sensor detail description.
@@ -132,7 +137,7 @@ class YamlEntityRegistryReader:
       measurement_type = detail["measurementType"]
       measurement_unit = detail["measurementUnit"]
 
-      channels[external_id] = Models.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
+      channels[external_id] = Entities.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
 
     return channels
   
@@ -149,7 +154,7 @@ class YamlEntityRegistryReader:
       sensor_detail = entity_registry.sensor_details[sensor_detail_id]
 
       if sensor_detail:
-        entity_registry.add_sensor(Models.SensorEntityDescription(external_id, name, description, sensor_detail))
+        entity_registry.add_sensor(Entities.SensorEntityDescription(external_id, name, description, sensor_detail))
       else:
         print("Sensor {} could not find sensor detail {}".format(external_id,  sensor_detail_id))
       
@@ -159,7 +164,7 @@ class YamlEntityRegistryReader:
       name = detail["name"]
       description = detail["description"]
 
-      entity_registry.add_sensed_entity(Models.PhysicalLocationEntityDescription(external_id, name, description))
+      entity_registry.add_sensed_entity(Entities.PhysicalLocationEntityDescription(external_id, name, description))
 
   def read_sensor_associations(self, descriptions, entity_registry):
     for detail in descriptions["sensorAssociations"]:
