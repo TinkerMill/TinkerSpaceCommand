@@ -5,6 +5,7 @@
 # Written by Keith Hughes
 #
 
+import pdb
 from . import Models
 import yaml
 
@@ -96,6 +97,8 @@ class YamlEntityRegistryReader:
     with open(sensor_description_file_path) as fp:
       descriptions = yaml.safe_load(fp)
 
+      pdb.set_trace()
+
       self.read_sensor_details(descriptions, entity_registry)
       self.read_sensor_descriptions(descriptions, entity_registry)
       self.read_physical_location_descriptions(descriptions, entity_registry)
@@ -111,6 +114,8 @@ class YamlEntityRegistryReader:
       description = detail["description"]
 
       channels = self.read_channel_details(detail)
+
+      pdb.set_trace()
 
       entity_registry.add_sensor_detail(Models.SensorDetailEntityDescription(external_id, name, description, channels))
 
