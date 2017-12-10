@@ -48,7 +48,6 @@ class EntityRegistry:
     """Associate the list of channel IDs for the sensor with the
        item being sensed by those channels.
     """
-
     for channel_id in channel_ids:
       sensor.add_channel_association(channel_id, sensed)
 
@@ -73,7 +72,7 @@ class EntityRegistry:
       sensor_details = sensor.sensor_details
       
       for channel_id, sensed_item in sensor.channel_associations.items():
-        sensed_active_model = self.sensed_entity_active_models[sensed_entity.external_id]
+        sensed_active_model = self.sensed_entity_active_models[sensed_item.external_id]
         channel_detail = sensor_details.get_channel_detail(channel_id)
         channel_active_model = Entities.SensorActiveChannelModel(channel_id, channel_detail, sensed_active_model)
 

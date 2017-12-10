@@ -88,7 +88,6 @@ class SensorActiveChannelModel:
 
   def update_current_value(self, new_value):
     self.current_value = new_value
-    print("Value {} for {}".format(self.current_value, self))
     
 class SensorEntityActiveModel(ActiveModel):
   """The active model for a sensor.
@@ -105,7 +104,6 @@ class SensorEntityActiveModel(ActiveModel):
     """
 
     self.active_channels[sensor_active_channel_model.channel_id] = sensor_active_channel_model
-    print("Sensor got active channel model {}".format(sensor_active_channel_model))
     
   def get_active_channel_model(self, channel_id):
     """Get the active channel by the channel ID.
@@ -124,11 +122,9 @@ class SensedEntityActiveModel(ActiveModel):
 
   def register_active_channel(self, active_channel):
     self.active_channels[active_channel.channel_description.measurement_type] = active_channel
-    print("Sensed got active channel model {}".format(active_channel))
     
   def show_values(self):
     for measurement_type, active_channel in self.active_channels.items():
-      print(active_channel)
       print("Sensed entity {} has value of {} for measurement type {}".
             format(self.sensed_entity_description.name,
                    active_channel.current_value,
