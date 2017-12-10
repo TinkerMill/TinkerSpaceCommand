@@ -2,6 +2,8 @@
 # Written by Keith Hughes
 #
 
+from rx.subjects import Subject
+
 class EntityDescription:
   """This is the base class for all model descriptions.
   """
@@ -88,6 +90,8 @@ class SensorActiveChannelModel:
 
   def update_current_value(self, new_value):
     self.current_value = new_value
+
+    self.sensed_entity_active_model.signal_value_update(self)
     
 class SensorEntityActiveModel(ActiveModel):
   """The active model for a sensor.
@@ -120,6 +124,8 @@ class SensedEntityActiveModel(ActiveModel):
     # type.
     self.active_channels = {}
 
+    self.subject = Subject()
+    
   def register_active_channel(self, active_channel):
     self.active_channels[active_channel.channel_description.measurement_type] = active_channel
     
@@ -129,6 +135,12 @@ class SensedEntityActiveModel(ActiveModel):
             format(self.sensed_entity_description.name,
                    active_channel.current_value,
                    measurement_type))
+
+  def signal_value_update(self, active_channel):
+    """Signal to everyone who cares that there has been a value update.
+    """
+    
+    self.subject.on_next(active_channel)
       
 class PhysicalLocationActiveModel(SensedEntityActiveModel):
   """The active model for a physical location.
