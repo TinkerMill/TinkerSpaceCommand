@@ -2,6 +2,8 @@
 # Written by Keith Hughes
 #
 
+from rx.subjects import Subject
+
 class EntityDescription:
   """This is the base class for all model descriptions.
   """
@@ -81,16 +83,29 @@ class SensorActiveChannelModel:
      receives the information from the sensor channel.
   """
 
-  def __init__(self, channel_id, channel_description, sensed_entity_active_model):
+  def __init__(self, channel_id, channel_description,
+               sensor_entity_active_model, sensed_entity_active_model):
     self.channel_id = channel_id
     self.channel_description = channel_description
     self.sensed_entity_active_model = sensed_entity_active_model
+    self.sensor_entity_active_model = sensor_entity_active_model
+    
+    self.sensor_entity_active_model.register_active_channel(self)
+    self.sensed_entity_active_model.register_active_channel(self)
 
     self.current_value = None
 
   def update_current_value(self, new_value):
+    """Update the current value for the channel.
+
+       This will also trigger signalling value update events for both the sensor
+       and the sensed entity.
+    """
+    
     self.current_value = new_value
-    print("Value {} for {}".format(self.current_value, self))
+
+    self.sensor_entity_active_model.signal_value_update(self)
+    self.sensed_entity_active_model.signal_value_update(self)
     
 class SensorEntityActiveModel(ActiveModel):
   """The active model for a sensor.
@@ -102,12 +117,13 @@ class SensorEntityActiveModel(ActiveModel):
     # Map of a channel ID to a SensorActiveChannelModel for the channel
     self.active_channels = {}
 
+    self.sensor_value_update_subject = Subject()
+
   def register_active_channel(self, sensor_active_channel_model):
     """Register an active channel with this sensor model.
     """
 
     self.active_channels[sensor_active_channel_model.channel_id] = sensor_active_channel_model
-    print("Sensor got active channel model {}".format(sensor_active_channel_model))
     
   def get_active_channel_model(self, channel_id):
     """Get the active channel by the channel ID.
@@ -115,8 +131,21 @@ class SensorEntityActiveModel(ActiveModel):
     
     return self.active_channels.get(channel_id)
 
-class SensedEntityActiveModel(ActiveModel):
+  def signal_value_update(self, active_channel):
+    """Signal to everyone who cares that there has been a value update.
+    """
+    
+    self.sensor_value_update_subject.on_next(active_channel)
 
+  def register_value_update_observer(self, observer):
+    """Register an observer interested in sensor value update events.
+    """
+    self.sensor_value_update_subject.subscribe(observer)
+
+class SensedEntityActiveModel(ActiveModel):
+  """The base active model for a sensed entity.
+  """
+  
   def __init__(self, sensed_entity_description):
     self.sensed_entity_description = sensed_entity_description
 
@@ -124,18 +153,30 @@ class SensedEntityActiveModel(ActiveModel):
     # type.
     self.active_channels = {}
 
+    self.sensor_value_update_subject = Subject()
+    
   def register_active_channel(self, active_channel):
     self.active_channels[active_channel.channel_description.measurement_type] = active_channel
-    print("Sensed got active channel model {}".format(active_channel))
     
   def show_values(self):
     for measurement_type, active_channel in self.active_channels.items():
-      print(active_channel)
       print("Sensed entity {} has value of {} for measurement type {}".
             format(self.sensed_entity_description.name,
                    active_channel.current_value,
                    measurement_type))
-      
+
+  def signal_value_update(self, active_channel):
+    """Signal to everyone who cares that there has been a value update.
+    """
+    
+    self.sensor_value_update_subject.on_next(active_channel)
+
+  def register_value_update_observer(self, observer):
+    """Register an observer interested in sensor value update events.
+    """
+    self.sensor_value_update_subject.subscribe(observer)
+
+    
 class PhysicalLocationActiveModel(SensedEntityActiveModel):
   """The active model for a physical location.
   """
