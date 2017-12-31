@@ -33,7 +33,6 @@ entity_importer = YamlEntityRegistryReader()
 entity_importer.load_registry('sensors.yaml', entity_registry)
 entity_registry.prepare_runtime_models()
 
-pdb.set_trace()
 entity_registry.get_sensed_active_model('tinkermill.bay.main').register_value_update_observer(SensedPrintObserver())
 entity_registry.get_sensor_active_model('sensor.esp8266.FE13DE').register_value_update_observer(SensorPrintObserver())
 
