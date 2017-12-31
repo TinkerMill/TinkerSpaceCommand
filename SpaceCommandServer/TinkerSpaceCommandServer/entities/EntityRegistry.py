@@ -104,8 +104,6 @@ class YamlEntityRegistryReader:
     with open(sensor_description_file_path) as fp:
       descriptions = yaml.safe_load(fp)
 
-      pdb.set_trace()
-
       self.read_sensor_details(descriptions, entity_registry)
       self.read_sensor_descriptions(descriptions, entity_registry)
       self.read_physical_location_descriptions(descriptions, entity_registry)
@@ -120,15 +118,12 @@ class YamlEntityRegistryReader:
       name = detail["name"]
       description = detail["description"]
 
+      sensor_update_time_limit = detail.get("sensorUpdateTimeLimit")
+      sensor_heartbeat_update_time_limit = detail.get("sensorHeartbeatUpdateTimeLimit")
+
       channels = self.read_channel_details(detail)
 
-<<<<<<< HEAD:SpaceCommandServer/TinkerSpaceCommandServer/models/ModelRegistry.py
-      pdb.set_trace()
-
-      entity_registry.add_sensor_detail(Models.SensorDetailEntityDescription(external_id, name, description, channels))
-=======
-      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, channels))
->>>>>>> origin/keithhughes:SpaceCommandServer/TinkerSpaceCommandServer/entities/EntityRegistry.py
+      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, sensor_update_time_limit, sensor_heartbeat_update_time_limit, channels))
 
   def read_channel_details(self, sensor_detail):
     """Read the channel details from a sensor detail description.
