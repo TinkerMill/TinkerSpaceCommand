@@ -42,12 +42,19 @@ class SensorDetailEntityDescription(EntityDescription):
      The details include the details of all the channels.
   """
 
-  def __init__(self, external_id, name, description, channels):
+  def __init__(self, external_id, name, description, sensor_update_time_limit, sensor_heartbeat_update_time_limit, channels):
     EntityDescription.__init__(self, external_id, name, description)
 
     # channels is a map from external IDs of channels to their channel detail.
     self.channels = channels
 
+    # the time limit, in seconds, that we expect to see a sensor value update,
+    # if any.
+    self.sensor_update_time_limit = sensor_update_time_limit
+    
+    # the time limit, in seconds, that we expect to see a sensor heartbeat update.
+    self.sensor_heartbeat_update_time_limit = sensor_heartbeat_update_time_limit
+    
   def get_channel_detail(self, channel_id):
     """Get the channel detail for a specific channel of the sensor.
     """
@@ -94,8 +101,8 @@ class SensorActiveChannelModel:
     self.sensed_entity_active_model.register_active_channel(self)
 
     self.current_value = None
-
-  def update_current_value(self, new_value):
+    
+  def update_current_value(self, new_value, time_received):
     """Update the current value for the channel.
 
        This will also trigger signalling value update events for both the sensor
@@ -106,7 +113,7 @@ class SensorActiveChannelModel:
 
     self.sensor_entity_active_model.signal_value_update(self)
     self.sensed_entity_active_model.signal_value_update(self)
-    
+
 class SensorEntityActiveModel(ActiveModel):
   """The active model for a sensor.
   """
@@ -118,6 +125,9 @@ class SensorEntityActiveModel(ActiveModel):
     self.active_channels = {}
 
     self.sensor_value_update_subject = Subject()
+
+    self.time_last_value_received = None
+    self.time_last_heartbeat_received = None
 
   def register_active_channel(self, sensor_active_channel_model):
     """Register an active channel with this sensor model.
@@ -141,6 +151,20 @@ class SensorEntityActiveModel(ActiveModel):
     """Register an observer interested in sensor value update events.
     """
     self.sensor_value_update_subject.subscribe(observer)
+
+  def value_update_received(self, time_received):
+    """A measurement message has been received.
+
+       The sensor is not guaranteed to have received the channel values yet.
+    """
+    
+    self.time_last_value_received = time_received
+
+  def heartbeat_received(self, time_received):
+    """A heartbeat message has been received.
+    """
+    
+    self.time_last_heartbeat_received = time_received
 
 class SensedEntityActiveModel(ActiveModel):
   """The base active model for a sensed entity.

@@ -21,6 +21,8 @@ class SpaceCommandServer:
   def start(self):
     print("Starting Tinker Space Command Server")
 
+    self.sensor_processor.start()
+    
     for provider in self.communicationProviders:
       provider.sensor_processor = self.sensor_processor
       provider.start()
@@ -33,6 +35,8 @@ class SpaceCommandServer:
 
     for provider in self.communicationProviders:
       provider.stop()
+
+    self.sensor_processor.stop()
 
   def addCommunicationProvider(self, provider):
     """Add in a new communication provider to the server.

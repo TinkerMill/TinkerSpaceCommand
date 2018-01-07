@@ -40,9 +40,3 @@ server = SpaceCommandServer(config)
 server.sensor_processor = SensorProcessor(entity_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
 server.start()
-
-
-
-# TODO(keith): Just start up the server in its own thread so don't need this.
-while True:
-  pass
