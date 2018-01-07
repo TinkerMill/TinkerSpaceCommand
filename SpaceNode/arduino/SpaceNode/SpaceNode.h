@@ -31,6 +31,17 @@
 class SpaceNode{
 
   private:
+    // Constructor private to ensure singleton instance of object
+    SpaceNode();
+    // Copy constructor is also private to ensure that the singleton instance
+    //  cannot be copied.
+    SpaceNode(SpaceNode const&){};
+    // Assignment operator is private so the static instance cannot be passed
+    //  to a new object.
+    SpaceNode& operator=(SpaceNode const&){};
+    // Pointer to singleton object used to ensure that only one instance is created
+    static SpaceNode* m_pInstance;
+    //
     const char* m_mqttControlInputTopic;
     char m_mqttClientId[64];
     char m_hostname[24];
@@ -42,12 +53,16 @@ class SpaceNode{
 
   public:
     // 
-    //SpaceNode(const char* _mqttControlInputTopic, WiFiClient _wifiClient, PubSubClient _mqttClient);
-    SpaceNode(const char* _mqttControlInputTopic);
+    //SpaceNode(const char* _mqttControlInputTopic);
+    // Instance method returns a static pointer to the SpaceNode object
+    //  This ensures only one instance is created for the class
+    //  i.e. there can only be one SpaceNode object in existance at at time within
+    //  an Arduino .ino file.
+    static SpaceNode* Instance();
     // Deconstructor
     ~SpaceNode();
 
-    void setupNode();
+    void setupNode(const char* _mqttControlInputTopic);
     void setup_mqtt_session();
     static void mqttCallback(char* topic, byte* payload, unsigned int length);
     //void mqttCallback(char* topic, byte* payload, unsigned int length);
