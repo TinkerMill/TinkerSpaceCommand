@@ -129,6 +129,9 @@ class SensorEntityActiveModel(ActiveModel):
     self.time_last_value_received = None
     self.time_last_heartbeat_received = None
 
+    # Offline until proven otherwise
+    self._online = False
+
   def register_active_channel(self, sensor_active_channel_model):
     """Register an active channel with this sensor model.
     """
@@ -165,6 +168,65 @@ class SensorEntityActiveModel(ActiveModel):
     """
     
     self.time_last_heartbeat_received = time_received
+
+  def check_if_offline_transition(self, current_time):
+
+    # Only check if the model thinks it is online and there was an update time,
+    # otherwise we want the initial 
+    if self._online:
+      if self.stateUpdateTimeLimit is not None:
+        # The only way we would ever be considered online is if there was a
+        # lastUpdate, so it will not be None
+        self._online = !self.is_timeout(current_time, self._lastUpdateTime, self.stateUpdateTimeLimit)
+      elif self.heartbeatUpdateTimeLimit is not None:
+        # If this sensor requires a heartbeat, the heartbeat time can be
+        # checked.
+
+        # Calculate the update time to use in the timeout calculation.
+        if self._lastUpdateTime is not Null:
+            if self._lastHeartbeatUpdate is not Null:
+              updateToUse = max(self._lastUpdateTime, self._lastHeartbeatUpdate)
+            else
+              updateToUse = self._lastUpdateTime
+        else:
+            updateToUse = self._lastHeartbeatUpdate
+            
+        self._online = !self.is_timeout(current_time, updateToUse, heartbeatUpdateTimeLimit.get)
+
+      # We knew online was true, so if now offline, then transitioned.
+      if (!self._online):
+        self.signal_offline(current_time)
+      
+      !self._online
+    else:
+      # Now, we are considered offline. If we have never been updated then we can check at the
+      # time of birth of the model. otherwise no need to check.
+      if !self.offlineSignaled:
+        if self.stateUpdateTimeLimit is not None:
+          if self.is_timeout(current_time, _lastUpdateTime.getOrElse(itemCreationTime), stateUpdateTimeLimit)):
+            self.signal_offline(current_time)
+                         
+            True
+          else:
+            False
+        else if heartbeatUpdateTimeLimit is not None:
+          # If this sensor requires a heartbeat, the heartbeat time can be checked.
+          if self.is_timeout(current_time, _lastHeartbeatUpdate.getOrElse(itemCreationTime), heartbeatUpdateTimeLimit):
+            self.signal_offline(current_time)
+            
+            True
+          else:
+            False
+        else:
+          False
+      else:
+        False
+
+  def is_timeout(self, current_time, reference_time, time_limit):
+    return current_time - reference_time > time_limit
+
+  def signal_offline(self, current_time):
+    print("Sensor offline at {0}".format(current_time)
 
 class SensedEntityActiveModel(ActiveModel):
   """The base active model for a sensed entity.
