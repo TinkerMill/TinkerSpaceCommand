@@ -1,6 +1,9 @@
 # Ignore scratchpads
 SL_Scratchpad*
 
+# Ignore vim swap files
+*.swp
+
 # Ignore Mac stuff
 .DS_Store
 
