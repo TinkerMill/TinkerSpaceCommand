@@ -18,7 +18,8 @@ from TinkerSpaceCommandServer.events.StandardEvents import *
 # The configuration file is in YAML.
 # be used in both languages.
 
-
+# Check to make sure that the config.yaml parameter is inculded in the run command
+# i.e. python ExampleServer.py server.yaml
 if len(sys.argv) == 1:
   print("usage: ExampleServer.py config.yaml")
   print("       where config.yaml is the YAML configuration file for the server.")
