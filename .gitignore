@@ -1,3 +1,9 @@
+# Ignore scratchpads
+SL_Scratchpad*
+
+# Ignore Mac stuff
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

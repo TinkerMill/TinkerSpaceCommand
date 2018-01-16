@@ -3,10 +3,12 @@ sensors:
     name: DHT 22 sensor 1
     description: foop
     sensorDetail: sensor.esp8266.dht22
+    active: true
   - externalId: sensor.esp8266.123456
     name: DHT 22 sensor 2
     description: foop
     sensorDetail: sensor.esp8266.dht22
+    active: true
 
 physicalLocations:
   - externalId: tinkermill.bay.main
@@ -27,6 +29,7 @@ sensorDetails:
   - externalId: sensor.esp8266.dht22
     name: ESP-8266 based sensor using the DHT-22
     description: ESP-8266 based sensor using the DHT-22
+    sensorUpdateTimeLimit: 1200
     channels:
       - externalId: temperature
         name: Temperature Channel
@@ -38,4 +41,16 @@ sensorDetails:
         description: The humidity channel of a DHT 22
         measurementType: type.measurement.humidity
         measurementUnit: unit.measurement.humidity.relative
+
+  - externalId: sensor.esp8266.motion
+    name: ESP-8266 based sensor with a motion sensor
+    description: ESP-8266 based sensor with a motion detector
+    sensorHeartbeatUpdateTimeLimit: 1200
+    channels:
+      - externalId: motion
+        name: Motion Channel
+        description: The motion channel of a DHT 22
+        measurementType: type.measurement.motion
+        measurementUnit: unit.measurement.active
+
 

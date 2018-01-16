@@ -121,9 +121,13 @@ class YamlEntityRegistryReader:
       sensor_update_time_limit = detail.get("sensorUpdateTimeLimit")
       sensor_heartbeat_update_time_limit = detail.get("sensorHeartbeatUpdateTimeLimit")
 
+<<<<<<< HEAD
+      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, channels))
+=======
       channels = self.read_channel_details(detail)
 
       entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, sensor_update_time_limit, sensor_heartbeat_update_time_limit, channels))
+>>>>>>> keithhughes
 
   def read_channel_details(self, sensor_detail):
     """Read the channel details from a sensor detail description.

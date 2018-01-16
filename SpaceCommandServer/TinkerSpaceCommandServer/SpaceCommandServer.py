@@ -7,7 +7,7 @@ import sys
 
 class SpaceCommandServer:
   """The tinkermill space command server takes communication from a variety of 
-     communication provider and routes sensor information to the proper sensor
+     communication providers and routes sensor information to the proper sensor
      processors.
   """
   
@@ -21,18 +21,22 @@ class SpaceCommandServer:
   def start(self):
     print("Starting Tinker Space Command Server")
 
+    self.sensor_processor.start()
+    
     for provider in self.communicationProviders:
       provider.sensor_processor = self.sensor_processor
       provider.start()
 
       # Set the ^C handler.
-    signal.signal(signal.SIGINT, self.signal_handler)
+      signal.signal(signal.SIGINT, self.signal_handler)
 
   def stop(self):
     print("Stopping Tinker Space Command Server")
 
     for provider in self.communicationProviders:
       provider.stop()
+
+    self.sensor_processor.stop()
 
   def addCommunicationProvider(self, provider):
     """Add in a new communication provider to the server.
