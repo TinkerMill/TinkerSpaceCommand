@@ -2,7 +2,7 @@
 
 ARG1=${1:-no_args_passed}
 
-#apt-get update
+apt-get update
 
 #apt-get install -y git
 
