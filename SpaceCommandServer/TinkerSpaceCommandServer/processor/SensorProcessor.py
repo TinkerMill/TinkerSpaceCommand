@@ -1,4 +1,10 @@
 #
+# The Sensor Processor takes sensor inpput from the communication channels in
+# the comm package, sorts out the type of communication, and forwards the
+# information to the appropriate active models found in the entities package.
+#
+
+#
 # Written by Keith Hughes
 #
 
@@ -7,6 +13,10 @@ from threading import Thread
 import time
 
 class SensorProcessorOfflineThread(Thread):
+  """The offline thread periodically checks all sensors to see if they 
+     have gone offline.
+  """
+  
   def __init__(self, sensor_processor):
     Thread.__init__(self)
     self.sensor_processor = sensor_processor
@@ -15,6 +25,11 @@ class SensorProcessorOfflineThread(Thread):
   def run(self):
     while self.running:
       print("Sensor processor thread scan")
+
+      current_time = time.time()
+      for active_sensor_model in self.sensor_processor.entity_registry.get_all_sensor_active_models():
+        offline = active_sensor_model.check_if_offline_transition(current_time)
+
       time.sleep(10)
       
   def stop(self):

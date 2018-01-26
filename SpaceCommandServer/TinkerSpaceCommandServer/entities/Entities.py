@@ -1,8 +1,18 @@
 #
+# The entities for TinkerSpaceCommandServer that are sensors and things
+# that are sensed, e.g. physical locations.
+
+#
 # Written by Keith Hughes
 #
 
 from rx.subjects import Subject
+
+#
+# Subclasses of EntityDescription are static descriptions of the entities in
+# TinkerSpaceCommandServer. They describe the names and descriptions, the
+# capabilities of sensors, etc.
+#
 
 class EntityDescription:
   """This is the base class for all model descriptions.
@@ -75,7 +85,8 @@ class SensorChannelDetail(EntityDescription):
 
 #
 # Active models are the models of things in the space that contain the live
-# data as it is happening.
+# data as it is happening. There are active models for sensors, things that
+# are sensed, etc.
 #
 
 class ActiveModel:
@@ -177,7 +188,7 @@ class SensorEntityActiveModel(ActiveModel):
       if self.stateUpdateTimeLimit is not None:
         # The only way we would ever be considered online is if there was a
         # lastUpdate, so it will not be None
-        self._online = !self.is_timeout(current_time, self._lastUpdateTime, self.stateUpdateTimeLimit)
+        self._online = not self.is_timeout(current_time, self._lastUpdateTime, self.stateUpdateTimeLimit)
       elif self.heartbeatUpdateTimeLimit is not None:
         # If this sensor requires a heartbeat, the heartbeat time can be
         # checked.
@@ -186,39 +197,39 @@ class SensorEntityActiveModel(ActiveModel):
         if self._lastUpdateTime is not Null:
             if self._lastHeartbeatUpdate is not Null:
               updateToUse = max(self._lastUpdateTime, self._lastHeartbeatUpdate)
-            else
+            else:
               updateToUse = self._lastUpdateTime
         else:
             updateToUse = self._lastHeartbeatUpdate
             
-        self._online = !self.is_timeout(current_time, updateToUse, heartbeatUpdateTimeLimit.get)
+        self._online = not self.is_timeout(current_time, updateToUse, heartbeatUpdateTimeLimit.get)
 
       # We knew online was true, so if now offline, then transitioned.
-      if (!self._online):
+      if (not self._online):
         self.signal_offline(current_time)
       
-      !self._online
+      return not self._online
     else:
       # Now, we are considered offline. If we have never been updated then we can check at the
       # time of birth of the model. otherwise no need to check.
-      if !self.offlineSignaled:
+      if not self.offlineSignaled:
         if self.stateUpdateTimeLimit is not None:
-          if self.is_timeout(current_time, _lastUpdateTime.getOrElse(itemCreationTime), stateUpdateTimeLimit)):
+          if self.is_timeout(current_time, _lastUpdateTime.getOrElse(itemCreationTime), stateUpdateTimeLimit):
             self.signal_offline(current_time)
                          
-            True
+            return True
           else:
-            False
-        else if heartbeatUpdateTimeLimit is not None:
+            return False
+        elif heartbeatUpdateTimeLimit is not None:
           # If this sensor requires a heartbeat, the heartbeat time can be checked.
           if self.is_timeout(current_time, _lastHeartbeatUpdate.getOrElse(itemCreationTime), heartbeatUpdateTimeLimit):
             self.signal_offline(current_time)
             
-            True
+            return True
           else:
-            False
+            return False
         else:
-          False
+          return False
       else:
         False
 
