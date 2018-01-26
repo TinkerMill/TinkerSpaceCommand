@@ -38,10 +38,39 @@
 
 #include <SpaceNode.h>
 
+// Global static pointer to ensure a singleton instance of the class
+SpaceNode* SpaceNode::m_pInstance = NULL;
+
+/* This function is called to create an instance of the class
+ * Calling the constructor publicaly is not allowed.
+ * The constructor is private and only called by the Instance method
+ *  Usage - SpaceNode* node = SpaceNode::Instance();
+ *  If you call the SpaceNode::Instance method more than once it will always return the
+ *  same method. i.e. - SpaceNode* node2 = SpaceNode::Instance();
+ *  Then node1 == node2 b/c they refer to the same object.
+ */
+SpaceNode* SpaceNode::Instance(){
+  if(!m_pInstance){
+    m_pInstance = new SpaceNode();
+  }
+  return m_pInstance;
+}
+
+
 // Constructor - Overloaded 2 types
 //SpaceNode::SpaceNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/control", WiFiClient _wifiClient, PubSubClient _mqttClient){
-SpaceNode::SpaceNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/control"){
+SpaceNode::SpaceNode(){
   
+}
+
+// Deconstructor
+SpaceNode::~SpaceNode(){ /*Nothing to Deconstruct*/ };
+
+
+// Set up the program.
+// This function is called once when the program starts.
+void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/control") {
+
   // The topic to subscribe to.
   m_mqttControlInputTopic = _mqttControlInputTopic;
 
@@ -68,16 +97,7 @@ SpaceNode::SpaceNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/c
 
   // Run setup method
   //setup();
-}
 
-// Deconstructor
-SpaceNode::~SpaceNode(){ /*Nothing to Deconstruct*/ };
-
-
-// Set up the program.
-// This function is called once when the program starts.
-void SpaceNode::setupNode() {
-  
   Serial.print("ESP Chip ID is ");
   Serial.println(ESP.getChipId());
 

@@ -1,7 +1,8 @@
 #include <SpaceNode.h>
 
 //SpaceNode node("/timkermill/sensors/control", wifiClient, mqttClient);
-SpaceNode node("/timkermill/sensors/control");
+//SpaceNode node("/timkermill/sensors/control");
+SpaceNode* node = SpaceNode::Instance();
 
 // The writable pins on the Sparkfun Thing Dev board.
 const int WRITABLE_PINS[] = { 0, 2, 4, 5, 12, 13, 14, 15, 16 };
@@ -56,7 +57,7 @@ void setup(){
   //    password = _password;
   setup_wifi();
 
-  node.setupNode();
+  node->setupNode("/timkermill/sensors/control");
 }
 
 // This function is called over and over again.
@@ -67,12 +68,12 @@ void loop() {
 
   // If not connected to the MQTT broker, either because has
 // never been connected or because the connection was lost.
-  if (!node.check_connection()) {
-    node.reconnect();
+  if (!node->check_connection()) {
+    node->reconnect();
   }
 
   // Have the MQTT client process any data.
-  node.loop_node();
+  node->loop_node();
 
   // Wait a second before sampling again.
   delay(1000);

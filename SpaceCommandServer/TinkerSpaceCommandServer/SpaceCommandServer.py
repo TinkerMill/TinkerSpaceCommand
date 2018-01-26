@@ -28,7 +28,7 @@ class SpaceCommandServer:
       provider.start()
 
       # Set the ^C handler.
-    signal.signal(signal.SIGINT, self.signal_handler)
+      signal.signal(signal.SIGINT, self.signal_handler)
 
   def stop(self):
     print("Stopping Tinker Space Command Server")
