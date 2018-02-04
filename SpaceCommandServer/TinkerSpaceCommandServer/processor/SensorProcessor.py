@@ -9,6 +9,7 @@
 #
 
 from TinkerSpaceCommandServer import Messages
+from TinkerSpaceCommandServer import Constants
 from threading import Thread
 import time
 
@@ -24,13 +25,13 @@ class SensorProcessorOfflineThread(Thread):
 
   def run(self):
     while self.running:
-      print("Sensor processor thread scan")
+      # let's start by sleeping to give sensors a chance to send their first
+      # value before declaring them offline.
+      time.sleep(Constants.SENSOR_OFFLINE_CHECK_DELAY)
 
       current_time = time.time()
       for active_sensor_model in self.sensor_processor.entity_registry.get_all_sensor_active_models():
         offline = active_sensor_model.check_if_offline_transition(current_time)
-
-      time.sleep(10)
       
   def stop(self):
     self.running = False
@@ -73,9 +74,6 @@ class SensorProcessor:
     if sensor_active_model is not None:    
       # The sensor ID was for a known sensor.
       
-      # Tell the sensor it has received a heartbeat.
-      sensor_active_model.value_update_received(time_received)
-      
       # Cycle through the data portion of the message, picking up the
       # channel ID and the data from the channel
       for channel_id, channel_data in message[Messages.MESSAGE_FIELD_DATA].items():
@@ -90,7 +88,7 @@ class SensorProcessor:
           value = channel_data[Messages.MESSAGE_FIELD_VALUE]
 
           # Update the value in the active channel
-          active_channel.update_current_value(value)
+          active_channel.update_current_value(value, time_received)
 
           active_sensed_entity.show_values()
         else:
