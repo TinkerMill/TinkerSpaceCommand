@@ -1,8 +1,19 @@
 #
+# The entities for TinkerSpaceCommandServer that are sensors and things
+# that are sensed, e.g. physical locations.
+
+#
 # Written by Keith Hughes
 #
 
 from rx.subjects import Subject
+import time
+
+#
+# Subclasses of EntityDescription are static descriptions of the entities in
+# TinkerSpaceCommandServer. They describe the names and descriptions, the
+# capabilities of sensors, etc.
+#
 
 class EntityDescription:
   """This is the base class for all model descriptions.
@@ -75,7 +86,8 @@ class SensorChannelDetail(EntityDescription):
 
 #
 # Active models are the models of things in the space that contain the live
-# data as it is happening.
+# data as it is happening. There are active models for sensors, things that
+# are sensed, etc.
 #
 
 class ActiveModel:
@@ -111,8 +123,8 @@ class SensorActiveChannelModel:
     
     self.current_value = new_value
 
-    self.sensor_entity_active_model.signal_value_update(self)
-    self.sensed_entity_active_model.signal_value_update(self)
+    self.sensor_entity_active_model.value_update_received(self, time_received)
+    self.sensed_entity_active_model.value_update_received(self, time_received)
 
 class SensorEntityActiveModel(ActiveModel):
   """The active model for a sensor.
@@ -126,8 +138,18 @@ class SensorEntityActiveModel(ActiveModel):
 
     self.sensor_value_update_subject = Subject()
 
-    self.time_last_value_received = None
-    self.time_last_heartbeat_received = None
+    self._item_creation_time = time.time()
+
+    self.value_last_time_received = None
+    self.heartbeat_last_time_received = None
+
+    # Offline until proven otherwise
+    self._online = False
+
+    self.value_update_time_limit = 60
+    self.heartbeat_update_time_limit = 2
+    self._last_update_time = None
+    self.offline_signaled = False
 
   def register_active_channel(self, sensor_active_channel_model):
     """Register an active channel with this sensor model.
@@ -141,30 +163,98 @@ class SensorEntityActiveModel(ActiveModel):
     
     return self.active_channels.get(channel_id)
 
-  def signal_value_update(self, active_channel):
-    """Signal to everyone who cares that there has been a value update.
-    """
-    
-    self.sensor_value_update_subject.on_next(active_channel)
-
   def register_value_update_observer(self, observer):
     """Register an observer interested in sensor value update events.
     """
     self.sensor_value_update_subject.subscribe(observer)
 
-  def value_update_received(self, time_received):
+  def value_update_received(self, active_channel, time_received):
     """A measurement message has been received.
 
        The sensor is not guaranteed to have received the channel values yet.
     """
     
-    self.time_last_value_received = time_received
+    self.offline_signaled = False
+    self.value_last_time_received = time_received
+        
+    self.sensor_value_update_subject.on_next(active_channel)
 
   def heartbeat_received(self, time_received):
     """A heartbeat message has been received.
     """
-    
-    self.time_last_heartbeat_received = time_received
+
+    self.offline_signaled = False
+    self.heartbeat_last_time_received = time_received
+
+  def check_if_offline_transition(self, current_time):
+
+    # Only check if the model thinks it is online and there was an update time,
+    # otherwise we want the initial 
+    if self._online:
+      if self.value_update_time_limit is not None:
+        # The only way we would ever be considered online is if there has been a
+        # value update, so it will not be None
+        self._online = not self.is_timeout(current_time, self.value_last_time_received, self.value_update_time_limit)
+      elif self.heartbeat_update_time_limit is not None:
+        # If this sensor requires a heartbeat, the heartbeat time can be
+        # checked.
+
+        # Calculate the update time to use in the timeout calculation.
+        if self._value_last_time_received is not Null:
+            if self._heartbeat_last_time_received is not Null:
+              update_to_use = max(self.value_last_time_received, self.heartbeat_last_time_received)
+            else:
+              update_to_use = self.value_last_time_received
+        else:
+            update_to_use = self.heartbeat_last_time_received
+            
+        self._online = not self.is_timeout(current_time, update_to_use, self.heartbeat_update_time_limit)
+
+      # We knew online was true, so if now offline, then transitioned.
+      if not self._online:
+        self.signal_offline(current_time)
+
+      return not self._online
+    else:
+      # Now, we are considered offline. If we have never been updated then we can check at the
+      # time of birth of the model. otherwise no need to check.
+      if not self.offline_signaled:
+        if self.value_update_time_limit is not None:
+          if self.value_last_time_received is not None:
+            update_to_use = self.value_last_time_received
+          else:
+            update_to_use = self._item_creation_time
+          
+          if self.is_timeout(current_time, update_to_use, self.value_update_time_limit):
+            self.signal_offline(current_time)
+
+            return True
+          else:
+            return False
+        elif self.heartbeat_update_time_limit is not None:
+          # If this sensor requires a heartbeat, the heartbeat time can be checked.
+          if self.heartbeat_last_time_received is not None:
+            update_to_use = self.heartbeat_last_time_received
+          else:
+            update_to_use = self._item_creation_time
+            
+          if self.is_timeout(current_time, update_to_use, self.heartbeat_update_time_limit):
+            self.signal_offline(current_time)
+
+            return True
+          else:
+            return False
+        else:
+          return False
+      else:
+        False
+
+  def is_timeout(self, current_time, reference_time, time_limit):
+    return current_time - reference_time > time_limit
+
+  def signal_offline(self, current_time):
+    self.offline_signaled = True
+    print("Sensor {0} offline at {1}".format(self.sensor_entity_description.name, current_time))
 
 class SensedEntityActiveModel(ActiveModel):
   """The base active model for a sensed entity.
@@ -177,7 +267,7 @@ class SensedEntityActiveModel(ActiveModel):
     # type.
     self.active_channels = {}
 
-    self.sensor_value_update_subject = Subject()
+    self.sensed_value_update_subject = Subject()
     
   def register_active_channel(self, active_channel):
     self.active_channels[active_channel.channel_description.measurement_type] = active_channel
@@ -189,16 +279,16 @@ class SensedEntityActiveModel(ActiveModel):
                    active_channel.current_value,
                    measurement_type))
 
-  def signal_value_update(self, active_channel):
+  def value_update_received(self, active_channel, time_received):
     """Signal to everyone who cares that there has been a value update.
     """
     
-    self.sensor_value_update_subject.on_next(active_channel)
+    self.sensed_value_update_subject.on_next(active_channel)
 
   def register_value_update_observer(self, observer):
-    """Register an observer interested in sensor value update events.
+    """Register an observer interested in sensed value update events.
     """
-    self.sensor_value_update_subject.subscribe(observer)
+    self.sensed_value_update_subject.subscribe(observer)
 
     
 class PhysicalLocationActiveModel(SensedEntityActiveModel):

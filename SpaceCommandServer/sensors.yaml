@@ -29,7 +29,7 @@ sensorDetails:
   - externalId: sensor.esp8266.dht22
     name: ESP-8266 based sensor using the DHT-22
     description: ESP-8266 based sensor using the DHT-22
-    sensorUpdateTimeLimit: 1200
+    sensorUpdateTimeLimit: 10
     channels:
       - externalId: temperature
         name: Temperature Channel
@@ -45,7 +45,7 @@ sensorDetails:
   - externalId: sensor.esp8266.motion
     name: ESP-8266 based sensor with a motion sensor
     description: ESP-8266 based sensor with a motion detector
-    sensorHeartbeatUpdateTimeLimit: 1200
+    sensorHeartbeatUpdateTimeLimit: 10
     channels:
       - externalId: motion
         name: Motion Channel

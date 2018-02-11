@@ -85,6 +85,12 @@ class EntityRegistry:
     
     return self.sensor_entity_active_models.get(sensor_id, None)
 
+  def get_all_sensor_active_models(self):
+    """Get all active sensor models from the registry.
+    """
+
+    return self.sensor_entity_active_models.values()
+
   def get_sensed_active_model(self, sensed_id):
     """Get the sensed entity active model associated with a given sensed entity ID.
 
