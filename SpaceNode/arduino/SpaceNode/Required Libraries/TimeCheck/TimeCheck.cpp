@@ -1,7 +1,7 @@
 
 #include "TimeCheck.h"
 
-unsigned long timeNow, timePrevious, timeTrigger;
+//unsigned long timeNow, timePrevious, timeTrigger;
 
 // Constructor
 TimeCheck::TimeCheck(unsigned long _timeNow, unsigned long _timeTrigger){
@@ -28,10 +28,8 @@ bool TimeCheck::check_trigger(unsigned long _timeNow){
 }
 
 
-/*
-// Refresh rate for checking temperatures and updating PID input milliseconds, default 1000
-#define TEMP_CHK_MS 100
-// Create a clock to print the current temperature every second
-TimeCheck printTempClock(millis(), TEMP_CHK_MS);
-	if (printTempClock.check_trigger()){}
-*/
+//// Refresh rate for checking temperatures and updating PID input milliseconds, default 1000
+//#define TEMP_CHK_MS 100
+//// Create a clock to print the current temperature every second
+//TimeCheck printTempClock(millis(), TEMP_CHK_MS);
+//	if (printTempClock.check_trigger()){}

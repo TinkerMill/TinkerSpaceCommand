@@ -2,9 +2,10 @@
  * To Run: g++ TimeCheck.cpp TimeCheck_example.cpp -o test.out
  *
  */
-#include <ctime>
+//#include <ctime>
 #include <iostream>
 #include <string>
+#include <ctime>
 #include "TimeCheck.h"
 
 using namespace std;
@@ -26,10 +27,12 @@ int ind = 0;
 
 while (ind < 10)
 {
+  // Update time in timeNow
   time(&timeNow);
     
   //cout << "Current Time Is: " << timeNow << "\n";
 
+  // Check if the time has passed 
   if (printTempClock.check_trigger(timeNow)){
     cout << "Trip Time: " << timeNow << "\n";
     ind++;

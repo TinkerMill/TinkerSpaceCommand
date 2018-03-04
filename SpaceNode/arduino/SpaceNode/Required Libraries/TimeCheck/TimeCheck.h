@@ -12,6 +12,8 @@
 #ifndef TIMECHECK
 #define TIMECHECK
 
+//#include "Arduino.h"
+
 class TimeCheck{
   private:
 	  unsigned long timeNow, timePrevious, timeTrigger;
@@ -23,7 +25,7 @@ class TimeCheck{
   // Deconstructor
   //~TimeCheck();
 	
-	void set_trigger(unsigned long _timeTrigger);
+  void set_trigger(unsigned long _timeTrigger);
 
 	bool check_trigger(unsigned long _timeNow);
 
