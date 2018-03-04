@@ -8,6 +8,8 @@ apt-get install -y git
 
 apt-get install -y emacs
 
+apt-get install -y mongodb python3-pymongo
+
 if [ $ARG1 = "install_vim" ]
 then
 	apt-get install -y vim

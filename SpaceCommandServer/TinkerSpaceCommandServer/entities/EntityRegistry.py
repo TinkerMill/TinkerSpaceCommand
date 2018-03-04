@@ -6,6 +6,7 @@
 #
 
 import pdb
+from TinkerSpaceCommandServer import Config
 from . import Entities
 import yaml
 
@@ -119,17 +120,17 @@ class YamlEntityRegistryReader:
     """Read the sensor details entities from the entity descriptions.
     """
     
-    for detail in descriptions["sensorDetails"]:
-      external_id = detail["externalId"]
-      name = detail["name"]
-      description = detail["description"]
+    for detail in descriptions[Config.CONFIG_NAME_SENSOR_DETAILS]:
+      external_id = detail[Config.CONFIG_NAME_EXTERNAL_ID]
+      name = detail[Config.CONFIG_NAME_NAME]
+      description = detail[Config.CONFIG_NAME_DESCRIPTION]
 
-      sensor_update_time_limit = detail.get("sensorUpdateTimeLimit")
-      sensor_heartbeat_update_time_limit = detail.get("sensorHeartbeatUpdateTimeLimit")
+      sensor_update_time_limit = detail.get(Config.CONFIG_NAME_SENSOR_UPDATE_TIME_LIMIT)
+      sensor_heartbeat_time_limit = detail.get(Config.CONFIG_NAME_SENSOR_HEARTBEAT_TIME_LIMIT)
 
       channels = self.read_channel_details(detail)
 
-      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, sensor_update_time_limit, sensor_heartbeat_update_time_limit, channels))
+      entity_registry.add_sensor_detail(Entities.SensorDetailEntityDescription(external_id, name, description, sensor_update_time_limit, sensor_heartbeat_time_limit, channels))
 
   def read_channel_details(self, sensor_detail):
     """Read the channel details from a sensor detail description.
@@ -137,12 +138,12 @@ class YamlEntityRegistryReader:
     """
 
     channels = {}
-    for detail in sensor_detail["channels"]:
-      external_id = detail["externalId"]
-      name = detail["name"]
-      description = detail["description"]
-      measurement_type = detail["measurementType"]
-      measurement_unit = detail["measurementUnit"]
+    for detail in sensor_detail[Config.CONFIG_NAME_CHANNELS]:
+      external_id = detail[Config.CONFIG_NAME_EXTERNAL_ID]
+      name = detail[Config.CONFIG_NAME_NAME]
+      description = detail[Config.CONFIG_NAME_DESCRIPTION]
+      measurement_type = detail[Config.CONFIG_NAME_MEASUREMENT_TYPE]
+      measurement_unit = detail[Config.CONFIG_NAME_MEASUREMENT_UNIT]
 
       channels[external_id] = Entities.SensorChannelDetail(external_id, name, description, measurement_type, measurement_unit)
 
@@ -152,40 +153,43 @@ class YamlEntityRegistryReader:
     """Read the sensor entities from the entity descriptions.
     """
     
-    for detail in descriptions["sensors"]:
-      external_id = detail["externalId"]
-      name = detail["name"]
-      description = detail["description"]
+    for detail in descriptions[Config.CONFIG_NAME_SENSORS]:
+      external_id = detail[Config.CONFIG_NAME_EXTERNAL_ID]
+      name = detail[Config.CONFIG_NAME_NAME]
+      description = detail[Config.CONFIG_NAME_DESCRIPTION]
 
-      sensor_detail_id = detail["sensorDetail"]
+      sensor_detail_id = detail[Config.CONFIG_NAME_SENSOR_DETAIL]
       sensor_detail = entity_registry.sensor_details[sensor_detail_id]
 
       if sensor_detail:
-        entity_registry.add_sensor(Entities.SensorEntityDescription(external_id, name, description, sensor_detail))
+        sensor_update_time_limit = detail.get(Config.CONFIG_NAME_SENSOR_UPDATE_TIME_LIMIT, sensor_detail.sensor_update_time_limit)
+        sensor_heartbeat_time_limit = detail.get(Config.CONFIG_NAME_SENSOR_HEARTBEAT_TIME_LIMIT, sensor_detail.sensor_heartbeat_time_limit)
+
+        entity_registry.add_sensor(Entities.SensorEntityDescription(external_id, name, description, sensor_detail, sensor_update_time_limit, sensor_heartbeat_time_limit))
       else:
         print("Sensor {} could not find sensor detail {}".format(external_id,  sensor_detail_id))
       
   def read_physical_location_descriptions(self, descriptions, entity_registry):
-    for detail in descriptions["physicalLocations"]:
-      external_id = detail["externalId"]
-      name = detail["name"]
-      description = detail["description"]
+    for detail in descriptions[Config.CONFIG_NAME_PHYSICAL_LOCATIONS]:
+      external_id = detail[Config.CONFIG_NAME_EXTERNAL_ID]
+      name = detail[Config.CONFIG_NAME_NAME]
+      description = detail[Config.CONFIG_NAME_DESCRIPTION]
 
       entity_registry.add_sensed_entity(Entities.PhysicalLocationEntityDescription(external_id, name, description))
 
   def read_sensor_associations(self, descriptions, entity_registry):
-    for detail in descriptions["sensorAssociations"]:
-      sensor_id = detail["sensorId"]
-      sensed_id = detail["sensedId"]
+    for detail in descriptions[Config.CONFIG_NAME_SENSOR_ASSOCIATIONS]:
+      sensor_id = detail[Config.CONFIG_NAME_SENSOR_ID]
+      sensed_id = detail[Config.CONFIG_NAME_SENSED_ID]
 
       sensor = entity_registry.sensors[sensor_id]
       sensed = entity_registry.sensed_entities[sensed_id]
 
-      channel_ids = detail.get("channelIds", "*")
-      if channel_ids == "*":
+      channel_ids = detail.get(Config.CONFIG_NAME_CHANNEL_IDS, Config.CONFIG_VALUE_CHANNEL_IDS_WILDCARD)
+      if channel_ids == Config.CONFIG_VALUE_CHANNEL_IDS_WILDCARD:
         channel_ids = list(sensor.sensor_details.channels.keys())
       else:
-        channel_ids = channel_ids.split(":")
+        channel_ids = channel_ids.split(Config.CONFIG_VALUE_CHANNEL_IDS_SPLIT)
 
       entity_registry.register_sensor_association(sensor, channel_ids, sensed)
 
