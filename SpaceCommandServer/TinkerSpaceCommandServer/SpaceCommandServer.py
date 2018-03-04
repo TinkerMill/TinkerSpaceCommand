@@ -4,6 +4,7 @@
 
 import signal
 import sys
+from TinkerSpaceCommandServer.webapp import WebAppServer
 
 class SpaceCommandServer:
   """The tinkermill space command server takes communication from a variety of 
@@ -17,7 +18,8 @@ class SpaceCommandServer:
     self.communicationProviders = []
 
     self.sensor_processor = None
-
+    self.webapp = WebAppServer.WebAppServer(__name__)
+    
   def start(self):
     print("Starting Tinker Space Command Server")
 
@@ -27,6 +29,8 @@ class SpaceCommandServer:
       provider.sensor_processor = self.sensor_processor
       provider.start()
 
+    self.webapp.start()
+    
     # Set the ^C handler.
     signal.signal(signal.SIGINT, self.signal_handler)
 

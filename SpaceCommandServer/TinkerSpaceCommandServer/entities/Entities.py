@@ -34,9 +34,12 @@ class SensorEntityDescription(EntityDescription):
   """The model description of a sensor.
   """
 
-  def __init__(self, external_id, name, description, sensor_details):
+  def __init__(self, external_id, name, description, sensor_details, sensor_update_time_limit, sensor_heartbeat_time_limit):
     EntityDescription.__init__(self, external_id, name, description)
     self.sensor_details = sensor_details
+
+    self.sensor_update_time_limit = sensor_update_time_limit
+    self.sensor_heartbeat_time_limit = sensor_heartbeat_time_limit
 
     # channel_associations is a map of channel IDs to the sensed item they will
     # be sensing.
@@ -53,7 +56,7 @@ class SensorDetailEntityDescription(EntityDescription):
      The details include the details of all the channels.
   """
 
-  def __init__(self, external_id, name, description, sensor_update_time_limit, sensor_heartbeat_update_time_limit, channels):
+  def __init__(self, external_id, name, description, sensor_update_time_limit, sensor_heartbeat_time_limit, channels):
     EntityDescription.__init__(self, external_id, name, description)
 
     # channels is a map from external IDs of channels to their channel detail.
@@ -63,8 +66,8 @@ class SensorDetailEntityDescription(EntityDescription):
     # if any.
     self.sensor_update_time_limit = sensor_update_time_limit
     
-    # the time limit, in seconds, that we expect to see a sensor heartbeat update.
-    self.sensor_heartbeat_update_time_limit = sensor_heartbeat_update_time_limit
+    # the time limit, in seconds, that we expect to see a sensor heartbeat.
+    self.sensor_heartbeat_time_limit = sensor_heartbeat_time_limit
     
   def get_channel_detail(self, channel_id):
     """Get the channel detail for a specific channel of the sensor.
@@ -146,8 +149,8 @@ class SensorEntityActiveModel(ActiveModel):
     # Offline until proven otherwise
     self._online = False
 
-    self.value_update_time_limit = 60
-    self.heartbeat_update_time_limit = 2
+    self.value_update_time_limit = sensor_entity_description.sensor_update_time_limit
+    self.heartbeat_update_time_limit = sensor_entity_description.sensor_heartbeat_time_limit
     self._last_update_time = None
     self.offline_signaled = False
 

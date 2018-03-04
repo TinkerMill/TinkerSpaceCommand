@@ -45,7 +45,7 @@ sensorDetails:
   - externalId: sensor.esp8266.motion
     name: ESP-8266 based sensor with a motion sensor
     description: ESP-8266 based sensor with a motion detector
-    sensorHeartbeatUpdateTimeLimit: 10
+    sensorHeartbeatTimeLimit: 10
     channels:
       - externalId: motion
         name: Motion Channel
