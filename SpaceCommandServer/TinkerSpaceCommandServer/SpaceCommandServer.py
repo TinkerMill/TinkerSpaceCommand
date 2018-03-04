@@ -18,7 +18,7 @@ class SpaceCommandServer:
     self.communicationProviders = []
 
     self.sensor_processor = None
-    self.webapp = WebAppServer.WebAppServer(__name__)
+    self.webapp = WebAppServer.WebAppServer(__name__, self)
     
   def start(self):
     print("Starting Tinker Space Command Server")
