@@ -1,0 +1,28 @@
+<html>
+
+<head>
+  <title>Sensors</title>
+  <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+
+<body>
+
+  <h1>Sensors</h1>
+
+  <table>
+    <tr>
+    <th>Actions</th><th>Sensor</th><th>Online</th>
+    </tr>
+    
+  {% for sensor in sensors %}
+  <tr>
+    <td>
+      <a href="/sensor/{{ sensor.sensor_entity_description.external_id }}">Details</a>
+    </td>
+    <td>{{ sensor.sensor_entity_description.name }}</td>
+    <td>{{ sensor._online }}</td>
+  </tr>
+  {% endfor %}
+  </table>
+</body>
+</html>
