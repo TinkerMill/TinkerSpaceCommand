@@ -166,6 +166,12 @@ class SensorEntityActiveModel(ActiveModel):
     
     return self.active_channels.get(channel_id)
 
+  def get_active_channels(self):
+    """Get all active channels for the sensor.
+    """
+
+    return sorted(list(self.active_channels.values()), key=lambda channel: channel.channel_description.name)
+
   def register_value_update_observer(self, observer):
     """Register an observer interested in sensor value update events.
     """
@@ -271,6 +277,12 @@ class SensedEntityActiveModel(ActiveModel):
     self.active_channels = {}
 
     self.sensed_value_update_subject = Subject()
+
+  def get_active_channels(self):
+    """Get all active channels for the sensor.
+    """
+
+    return sorted(list(self.active_channels.values()), key=lambda channel: channel.channel_description.name)
     
   def register_active_channel(self, active_channel):
     self.active_channels[active_channel.channel_description.measurement_type] = active_channel

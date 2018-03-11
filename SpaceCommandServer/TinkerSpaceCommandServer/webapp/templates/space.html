@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Space: {{space.sensed_entity_description.name}}{% endblock %}
+</head>
+
+{% block content %}
+
+  <h2>Space: {{space.sensed_entity_description.name}}</h2>
+
+  <p>External ID: {{space.sensed_entity_description.external_id}}</p>
+
+  <table>
+    <tr>
+    <th>Channel</th><th>Sensor</th><th>Last Value</th>
+    </tr>
+    
+  {% for channel in space.get_active_channels() %}
+  <tr>
+    <td>{{ channel.channel_description.name }}</td>
+    <td>
+      <a href="/sensor/{{ channel.sensor_entity_active_model.sensor_entity_description.external_id }}">
+	{{ channel.sensor_entity_active_model.sensor_entity_description.name }}
+      </a>
+    </td>
+    <td>{{ channel.current_value }} </td>
+  </tr>
+  {% endfor %}
+  </table>
+
+{% endblock %}
+  

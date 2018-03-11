@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}Spaces{% endblock %}
+</head>
+
+{% block content %}
+  <h2>Spaces</h2>
+
+  <table>
+    <tr>
+    <th>Actions</th><th>Space</th>
+    </tr>
+    
+  {% for space in spaces %}
+  <tr>
+    <td>
+      <a href="/space/{{ space.sensed_entity_description.external_id }}">Details</a>
+    </td>
+    <td>{{ space.sensed_entity_description.name }}</td>
+  </tr>
+  {% endfor %}
+  </table>
+
+  {% endblock %}
+  

@@ -1,3 +1,19 @@
+div.topmenu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.topmenu ul li {
+    display: inline;
+}
+
+div.topmenu ul li a {
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
 body {
-    background-color: lightblue;
+    margin: 1em;
 }

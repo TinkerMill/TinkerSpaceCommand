@@ -29,7 +29,10 @@ class WebAppServer:
         self.app = Flask(name, template_folder=self.template_dir, static_folder=self.static_dir)
         
         self.add_endpoint("/<path:path>","root", self.root_endpoint)
+        self.add_endpoint("/spaces","spaces", self.spaces_endpoint)
+        self.add_endpoint("/space/<string:space_id>","space", self.space_endpoint)
         self.add_endpoint("/sensors","sensors", self.sensors_endpoint)
+        self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
 
     def start(self):
         self.app.run()
@@ -42,10 +45,31 @@ class WebAppServer:
 
         return Response(template, status=200, headers={})
 
+    def spaces_endpoint(self, *args):
+        spaces = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
+        
+        template = render_template("spaces.html", spaces=spaces)
+
+        return Response(template, status=200, headers={})
+
+    def space_endpoint(self, space_id=None, *args):
+        space = self.server.sensor_processor.entity_registry.get_sensed_active_model(space_id)
+        
+        template = render_template("space.html", space=space)
+
+        return Response(template, status=200, headers={})
+
     def sensors_endpoint(self, *args):
         sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
         
         template = render_template("sensors.html", sensors=sensors)
+
+        return Response(template, status=200, headers={})
+
+    def sensor_endpoint(self, sensor_id=None, *args):
+        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+        
+        template = render_template("sensor.html", sensor=sensor)
 
         return Response(template, status=200, headers={})
     

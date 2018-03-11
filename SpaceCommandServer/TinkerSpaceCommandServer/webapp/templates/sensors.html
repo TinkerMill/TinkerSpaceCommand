@@ -1,13 +1,10 @@
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Sensors</title>
-  <link rel="stylesheet" type="text/css" href="/static/style.css">
+{% block title %}Sensors{% endblock %}
 </head>
 
-<body>
-
-  <h1>Sensors</h1>
+{% block content %}
+  <h2>Sensors</h2>
 
   <table>
     <tr>
@@ -24,5 +21,6 @@
   </tr>
   {% endfor %}
   </table>
-</body>
-</html>
+
+  {% endblock %}
+  
