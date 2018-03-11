@@ -30,6 +30,7 @@ class SensorProcessorOfflineThread(Thread):
       time.sleep(Constants.SENSOR_OFFLINE_CHECK_DELAY)
 
       current_time = time.time()
+      # Check heartbeat to see if sensor has gone offline.
       for active_sensor_model in self.sensor_processor.entity_registry.get_all_sensor_active_models():
         offline = active_sensor_model.check_if_offline_transition(current_time)
       
