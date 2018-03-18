@@ -11,7 +11,12 @@
 
   <table>
     <tr>
-    <th>Channel</th><th>Sensor</th><th>Last Value</th>
+      <th>Channel</th>
+      <th>Sensor</th>
+      <th>Online</th>
+      <th>Last Value</th>
+      <th>Time Last Value Received</th>
+      <th>Time Last Heartbeat Received</th>
     </tr>
     
   {% for channel in space.get_active_channels() %}
@@ -22,7 +27,10 @@
 	{{ channel.sensor_entity_active_model.sensor_entity_description.name }}
       </a>
     </td>
+    <td>{{ channel.sensor_entity_active_model._online }} </td>
     <td>{{ channel.current_value }} </td>
+    <td>{{ channel.sensor_entity_active_model.value_last_time_received_fmt() }} </td>
+    <td>{{ channel.sensor_entity_active_model.heartbeat_last_time_received_fmt() }} </td>
   </tr>
   {% endfor %}
   </table>

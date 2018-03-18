@@ -57,3 +57,11 @@ platform could measure the moisture content for multiple pots of soil.
     }
   }
 }
+
+A heartbeat message for the sensor would be:
+
+
+{
+  "messageType": "heartbeat",
+  "sensorId": "sensor.esp8266.FE13DE",
+}

@@ -101,10 +101,13 @@ class MqttCommunicationProvider:
   def on_new_mqtt_message(self, mqtt_client, userdata, msg):
     # A new MQTT message has come in.
 
-    dt = time.time()
+    try:
+      dt = time.time()
     
-    # Decode the JSON message that has come from sensor nodes.
-    # The JSON string is encoded in UTF-8 characters.
-    message = json.loads(msg.payload.decode('utf-8'))
+      # Decode the JSON message that has come from sensor nodes.
+      # The JSON string is encoded in UTF-8 characters.
+      message = json.loads(msg.payload.decode('utf-8'))
 
-    self.sensor_processor.process_sensor_input(message, dt)
+      self.sensor_processor.process_sensor_input(message, dt)
+    except:
+      print("Bad MQTT message received.")

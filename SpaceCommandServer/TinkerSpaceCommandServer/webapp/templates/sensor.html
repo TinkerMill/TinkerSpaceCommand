@@ -7,7 +7,22 @@
 
   <h2>Sensor: {{sensor.sensor_entity_description.name}}</h2>
 
-  <p>External ID: {{sensor.sensor_entity_description.external_id}}</p>
+  <table>
+    <tr>
+      <th>External ID</th><td>{{sensor.sensor_entity_description.external_id}}</td>
+    </tr>
+    <tr>
+      <th>Online</th><td>{{sensor._online}}</td>
+    </tr>
+    <tr>
+      <th>Last Value Received</th><td>{{sensor.value_last_time_received_fmt()}}</td>
+    </tr>
+    <tr>
+      <th>Heartbeat Value Received</th><td>{{sensor.heartbeat_last_time_received_fmt()}}</td>
+    </tr>
+  </table>
+
+<p>&nbsp;</p>
 
   <table>
     <tr>

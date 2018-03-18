@@ -8,6 +8,9 @@
 
 from rx.subjects import Subject
 import time
+from datetime import datetime
+
+from TinkerSpaceCommandServer import Constants
 
 #
 # Subclasses of EntityDescription are static descriptions of the entities in
@@ -154,6 +157,18 @@ class SensorEntityActiveModel(ActiveModel):
     self._last_update_time = None
     self.offline_signaled = False
 
+  def value_last_time_received_fmt(self):
+    if self.value_last_time_received is not None:
+      return datetime.fromtimestamp(self.value_last_time_received).strftime(Constants.SENSOR_TIMESTAMP_DATE_TIME_FORMAT)
+    else:
+      return "None"
+
+  def heartbeat_last_time_received_fmt(self):
+    if self.heartbeat_last_time_received is not None:
+      return datetime.fromtimestamp(self.heartbeat_last_time_received).strftime(Constants.SENSOR_TIMESTAMP_DATE_TIME_FORMAT)
+    else:
+      return "None"
+
   def register_active_channel(self, sensor_active_channel_model):
     """Register an active channel with this sensor model.
     """
@@ -185,6 +200,7 @@ class SensorEntityActiveModel(ActiveModel):
     
     self.offline_signaled = False
     self.value_last_time_received = time_received
+    self._online = True
         
     self.sensor_value_update_subject.on_next(active_channel)
 
@@ -194,6 +210,7 @@ class SensorEntityActiveModel(ActiveModel):
 
     self.offline_signaled = False
     self.heartbeat_last_time_received = time_received
+    self._online = True
 
   def check_if_offline_transition(self, current_time):
 
