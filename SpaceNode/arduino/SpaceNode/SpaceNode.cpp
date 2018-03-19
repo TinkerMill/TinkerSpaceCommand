@@ -224,5 +224,20 @@ bool SpaceNode::check_connection(){
 }
 
 void SpaceNode::loop_node(){
+  // If not connected to the MQTT broker, either because has
+  // never been connected or because the connection was lost.
+  if (!TMNode.check_connection()) {
+    TMNode.reconnect();
+  }
+
+  // Have the MQTT client process any data.
   m_mqttClient.loop();
+
+  // Send heartbeat if sufficient time has elapsed
+  // SpaceNode::heartbeat();
+  
+}
+
+void SpaceNode::heartbeat(){
+  // 
 }
