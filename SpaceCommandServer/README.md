@@ -18,4 +18,11 @@ $ source activate IOT
 $ python ExampleServer.py server.yaml
 ```
 
-
+What Happens at Startup?
+========================
+* Config file is loaded into `config`
+* `entity registry` object is created from `EntityRegistry()` class
+  * _SpacdCommandServer/TinkerSpaceCommandServer/entities/EntityRegistry.py_
+  * Imports `Entities` class
+* `YamlEntityRegistryReader`
+  

@@ -60,7 +60,6 @@ SpaceNode* SpaceNode::Instance(){
 // Constructor - Overloaded 2 types
 //SpaceNode::SpaceNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/control", WiFiClient _wifiClient, PubSubClient _mqttClient){
 SpaceNode::SpaceNode(){
-  
 }
 
 // Deconstructor
@@ -69,7 +68,7 @@ SpaceNode::~SpaceNode(){ /*Nothing to Deconstruct*/ };
 
 // Set up the program.
 // This function is called once when the program starts.
-void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/control") {
+void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/data") {
 
   // The topic to subscribe to.
   m_mqttControlInputTopic = _mqttControlInputTopic;
@@ -87,13 +86,12 @@ void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sens
 
   // The WiFi client used to connect to the wireless network.
   //m_wifiClient = _wifiClient;
-  WiFiClient m_wifiClient();
+  // WiFiClient m_wifiClient(); // SL Note: turned this off
 
   // The MQTT Pub/Sub client
   //PubSubClient mqttClient(wifiClient);
-  //m_mqttClient(m_wifiClient);
+  m_mqttClient.setClient(m_wifiClient); 
   //m_mqttClient = _mqttClient;
-  PubSubClient m_mqttClient();
 
   // Run setup method
   //setup();
@@ -102,12 +100,12 @@ void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sens
   Serial.println(ESP.getChipId());
 
   // Create a host name for the chip.
-  sprintf(m_hostname, "ESP8266_%06X", ESP.getChipId());
+  sprintf(m_hostname, "esp8266_%06X", ESP.getChipId());
   Serial.print("Host Name: ");
   Serial.println(m_hostname);
 
   // Create an MQTT client ID likely unique.
-  sprintf(m_mqttClientId, "/esp8266/%s", m_hostname);
+  sprintf(m_mqttClientId, "sensor.%s", m_hostname);
   Serial.print("MQTT Client ID: ");
   Serial.println(m_mqttClientId);
 
@@ -184,12 +182,14 @@ void SpaceNode::setup_mqtt_session() {
       // Set the MQTT server and port to attach to.
       m_mqttClient.setServer(MDNS.IP(0), MDNS.port(0));
 
+      Serial.println("mqtt Server is set, setting Callback next");
       // Set the function to be called every time a message comes in.
       // Set callback to a static function since you cannot easily pass a 
       // member function to the PubSubClient.setCallback() method, since
       // the expected signature is looking for a standard function
       // not a member function (maybe fix for future version)
       m_mqttClient.setCallback(&SpaceNode::mqttCallback);
+      Serial.println("Callback is set");
 
       break;
     }
@@ -202,6 +202,9 @@ void SpaceNode::reconnect() {
   // Loop until we're reconnected
   while (!m_mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
+    Serial.println("");
+    Serial.print("m_mqttClientId: ");
+    Serial.println(m_mqttClientId);
     // Attempt to connect
     if (m_mqttClient.connect(m_mqttClientId)) {
       Serial.println("connected");
@@ -226,8 +229,8 @@ bool SpaceNode::check_connection(){
 void SpaceNode::loop_node(){
   // If not connected to the MQTT broker, either because has
   // never been connected or because the connection was lost.
-  if (!TMNode.check_connection()) {
-    TMNode.reconnect();
+  if (!check_connection()) {
+    reconnect();
   }
 
   // Have the MQTT client process any data.
@@ -238,6 +241,22 @@ void SpaceNode::loop_node(){
   
 }
 
-void SpaceNode::heartbeat(){
-  // 
+//void SpaceNode::heartbeat(){
+//  // 
+//}
+void SpaceNode::publish_heartbeat(){
+
+  //m_mqttClient.publish("/tinkermill/sensors/data", "heartbeat");
+  StaticJsonBuffer<200> jsonBuffer;
+
+  JsonObject& root = jsonBuffer.createObject();
+  root["sensorId"] = String(m_mqttClientId);
+  root["messageType"] = "heartbeat";
+
+  char json_buffer[512];
+ 
+   root.printTo(json_buffer, sizeof(json_buffer));
+   //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
+   m_mqttClient.publish("/tinkermill/sensors/data", json_buffer);
 }
+

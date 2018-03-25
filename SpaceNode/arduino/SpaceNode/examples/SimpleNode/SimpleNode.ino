@@ -1,4 +1,5 @@
 #include <SpaceNode.h>
+#include "TimeCheck.h"
 
 //SpaceNode TMNode("/timkermill/sensors/control", wifiClient, mqttClient);
 //SpaceNode TMNode("/timkermill/sensors/control");
@@ -11,8 +12,12 @@ const int WRITABLE_PINS[] = { 0, 2, 4, 5, 12, 13, 14, 15, 16 };
 // The number of writable pins
 const int NUM_WRITABLE_PINS = sizeof(WRITABLE_PINS) / sizeof(int);
 
+// Create heartbeat clock
+////TimeCheck heartbeatClock((unsigned long)millis(), (unsigned long)TMNode.heartbeatTimer);
+TimeCheck heartbeatClock((unsigned long)millis(), (unsigned long)1000);
+
 // Set up the WiFi connection.
-void setup_wifi(const char* ssid = "TinkerMill", const char* password = "") {
+void setup_wifi(const char* ssid = "TinkerMill", const char* password = "password") {
 
   // A slight delay is useful to make sure everything is fully
   // initialized on the chip and board.
@@ -58,7 +63,9 @@ void setup(){
   //    password = _password;
   setup_wifi();
 
-  TMNode.setupNode("/timkermill/sensors/control");
+  Serial.println("Wifi Setup Exited................................");
+
+  TMNode.setupNode("/timkermill/sensors/data");
 }
 
 // This function is called over and over again.
@@ -67,10 +74,14 @@ void setup(){
 // have come in.
 void loop() {
   // loop_node method must be called once per loop for proper node operation
+  //Serial.println("Enter loop_node");
   TMNode.loop_node();
+  //Serial.println("Exit loop_node");
 
-  // Wait a second before sampling again.
-  // SL Note: get rid of this timer. Use a timer inside of the class to update
-  // sensor readings or heartbeats.
-  delay(1000);
+  // Send heartbeat if enough time has elapsed
+  if (heartbeatClock.check_trigger( (unsigned long)millis() )){
+    Serial.print("Heartbeat Time: ");
+    Serial.println(millis());
+    TMNode.publish_heartbeat();
+  }
 }

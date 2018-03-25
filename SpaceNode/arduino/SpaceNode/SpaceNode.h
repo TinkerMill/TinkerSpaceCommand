@@ -51,11 +51,12 @@ class SpaceNode{
     char m_hostname[24];
     WiFiClient m_wifiClient;
     PubSubClient m_mqttClient;
+    //PubSubClient m_mqttClient(WiFiClient);
     //int* static_writablePins;
     //int static_numWritablePins;
     //
-    int heartbeatTimer = 10000; // default 10s
-    void heartbeat;
+    int heartbeatTimer = 1000; // default 1s
+    //void heartbeat();
 
 
   public:
@@ -78,7 +79,8 @@ class SpaceNode{
     void reconnect();
     bool check_connection();
     void loop_node();
-
+    
+    void publish_heartbeat();
  
 
 };
@@ -86,7 +88,7 @@ class SpaceNode{
 // Create an instance of the SpaceNode object to use in the Arduino .ino file.
 // This way when the SpaceNode.h file is included, the TMNode object is automatically
 // created and the user does not need to know the details.
-SpaceNode & TMNode = *SpaceNode::Instance();
+//SpaceNode & TMNode = *SpaceNode::Instance();
 
 
 #endif //SPACENODE
