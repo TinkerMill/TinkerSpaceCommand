@@ -35,7 +35,7 @@ class WebAppServer:
         self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
 
     def start(self):
-        self.app.run()
+        self.app.run(host='0.0.0.0')
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
         self.app.add_url_rule(endpoint, endpoint_name, handler)

@@ -1,0 +1,12 @@
+[Unit]
+Description=Tinker Space Command Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/TinkerSpaceCommand/SpaceCommandServer
+ExecStart=/opt/TinkerSpaceCommand/SpaceCommandServer/ExampleServer.py server.yaml
+
+[Install]
+WantedBy=multi-user.target

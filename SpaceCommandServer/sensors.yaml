@@ -1,5 +1,5 @@
 sensors:
-  - externalId: sensor.esp8266_00ACE7
+  - externalId: sensor.esp8266_8C8E0D
     name: DHT 22 sensor 0
     description: foop
     sensorDetail: sensor.esp8266.dht22
@@ -24,7 +24,7 @@ physicalLocations:
     description: The classroom of Tinkermill
 
 sensorAssociations:
-  - sensorId: sensor.esp8266_00ACE7
+  - sensorId: sensor.esp8266_8C8E0D
     channelIds: temperature:humidity
     sensedId: tinkermill.bay.main
   - sensorId: sensor.esp8266.FE13DE

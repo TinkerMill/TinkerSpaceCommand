@@ -1,28 +1,21 @@
-This folder contains the SpaceCommand Server.
+Tinkermill Space Command Server
 
-The python folder contains the Python components of the server.
+TinkerMill Space Command is a space automation framework designed for the
+TinkerMill Maker Space in Longmont, CO. 
 
-Install the following packages:
+The framework uses IoT (Internet of Things) technologies for sensing, command,
+and control of the physical space. Though the framework will be implemented
+for the needs of the TinkerMill space, it will be implemented as a plugin
+based framework that will make it easy to add in new functionality.
 
-* pip3 install zeroconf
-* pip3 install paho-mqtt
-* pip3 install pyyaml
-* pip3 install django
+This component is the server for the project.
 
+Full documentation for the platform, including message formats, circuit
+diagrams, and more can be found on the TinkerMill wiki.
 
-To Run the Example Server
-=========================
-```linux
-$ conda info --envs
-$ source activate IOT
-$ python ExampleServer.py server.yaml
-```
+http://wiki.tinkermill.org/index.php/ESS_IoT
 
-What Happens at Startup?
-========================
-* Config file is loaded into `config`
-* `entity registry` object is created from `EntityRegistry()` class
-  * _SpacdCommandServer/TinkerSpaceCommandServer/entities/EntityRegistry.py_
-  * Imports `Entities` class
-* `YamlEntityRegistryReader`
-  
+This platform is open source with an Apache 2 license.
+
+The project was started by Keith Hughes and Steve Lammers, but will hopefully
+have code contributed by anyone interested in being part of the project.
