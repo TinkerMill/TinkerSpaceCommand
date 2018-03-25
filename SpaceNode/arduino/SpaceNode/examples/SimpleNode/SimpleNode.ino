@@ -17,7 +17,7 @@ const int NUM_WRITABLE_PINS = sizeof(WRITABLE_PINS) / sizeof(int);
 TimeCheck heartbeatClock((unsigned long)millis(), (unsigned long)1000);
 
 // Set up the WiFi connection.
-void setup_wifi(const char* ssid = "TinkerMill", const char* password = "") {
+void setup_wifi(const char* ssid = "TinkerMill", const char* password = "password") {
 
   // A slight delay is useful to make sure everything is fully
   // initialized on the chip and board.
@@ -63,7 +63,9 @@ void setup(){
   //    password = _password;
   setup_wifi();
 
-  TMNode.setupNode("/timkermill/sensors/control");
+  Serial.println("Wifi Setup Exited................................");
+
+  TMNode.setupNode("/timkermill/sensors/data");
 }
 
 // This function is called over and over again.
@@ -72,11 +74,14 @@ void setup(){
 // have come in.
 void loop() {
   // loop_node method must be called once per loop for proper node operation
+  //Serial.println("Enter loop_node");
   TMNode.loop_node();
+  //Serial.println("Exit loop_node");
 
   // Send heartbeat if enough time has elapsed
   if (heartbeatClock.check_trigger( (unsigned long)millis() )){
     Serial.print("Heartbeat Time: ");
     Serial.println(millis());
+    TMNode.publish_heartbeat();
   }
 }

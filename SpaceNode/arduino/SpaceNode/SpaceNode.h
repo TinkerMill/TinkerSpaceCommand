@@ -51,6 +51,7 @@ class SpaceNode{
     char m_hostname[24];
     WiFiClient m_wifiClient;
     PubSubClient m_mqttClient;
+    //PubSubClient m_mqttClient(WiFiClient);
     //int* static_writablePins;
     //int static_numWritablePins;
     //
@@ -78,7 +79,8 @@ class SpaceNode{
     void reconnect();
     bool check_connection();
     void loop_node();
-
+    
+    void publish_heartbeat();
  
 
 };
