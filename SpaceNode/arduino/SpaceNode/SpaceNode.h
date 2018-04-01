@@ -81,6 +81,8 @@ class SpaceNode{
     void loop_node();
     
     void publish_heartbeat();
+    
+    void publish_msg(char*, char*, float);
  
 
 };

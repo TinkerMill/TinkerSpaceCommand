@@ -253,10 +253,37 @@ void SpaceNode::publish_heartbeat(){
   root["sensorId"] = String(m_mqttClientId);
   root["messageType"] = "heartbeat";
 
-  char json_buffer[512];
+  char json_buffer[200];
  
    root.printTo(json_buffer, sizeof(json_buffer));
    //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
    m_mqttClient.publish("/tinkermill/sensors/data", json_buffer);
 }
 
+void SpaceNode::publish_msg(char * p_messageType, 
+                            char * p_dataType, 
+                            float message){
+  
+  StaticJsonBuffer<512> jsonBuffer;
+
+  JsonObject& root = jsonBuffer.createObject();
+  root["sensorId"] = String(m_mqttClientId);
+  root["messageType"] = p_messageType;
+  JsonObject& data = root.createNestedObject("data");
+  //data["temp"] = 21;
+  //data[p_dataType] = message;
+
+  JsonObject& value = data.createNestedObject(p_dataType);
+  value["value"] = message;
+
+  root.prettyPrintTo(Serial);
+
+  char json_buffer[512];
+ 
+  root.printTo(json_buffer, sizeof(json_buffer));
+  //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
+  m_mqttClient.publish("/tinkermill/sensors/data", json_buffer);
+  
+  m_mqttClient.loop();
+
+}
