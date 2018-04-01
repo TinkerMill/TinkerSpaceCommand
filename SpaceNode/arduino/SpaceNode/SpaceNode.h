@@ -21,6 +21,8 @@
 #ifndef SPACENODE
 #define SPACENODE
 
+#define MQTT_MAX_PACKET_SIZE 2048
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -45,8 +47,11 @@ class SpaceNode{
     SpaceNode& operator=(SpaceNode const&){};
     // Pointer to singleton object used to ensure that only one instance is created
     static SpaceNode* m_pInstance;
-    //
+    // The topic for incoming control messages
     const char* m_mqttControlInputTopic;
+
+    // The topic for outgoing data messages.
+    const char* m_mqttDataOutputTopic;
     char m_mqttClientId[64];
     char m_hostname[24];
     WiFiClient m_wifiClient;
@@ -70,7 +75,10 @@ class SpaceNode{
     // Deconstructor
     ~SpaceNode();
 
-    void setupNode(const char* _mqttControlInputTopic);
+    void setupNode(
+      const char* _mqttDataOutputTopic,
+      const char* _mqttControlInputTopic);
+
     void setup_mqtt_session();
     static void mqttCallback(char* topic, byte* payload, unsigned int length);
     //void mqttCallback(char* topic, byte* payload, unsigned int length);

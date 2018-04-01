@@ -107,7 +107,8 @@ void setup(){
 
   Serial.println("Wifi Setup Exited................................");
 
-  DHTNode.setupNode("/tinkermill/sensors/data");
+  DHTNode.setupNode("/tinkermill/sensors/data", 
+    "/tinkermill/sensors/control");
 }
 
 // This function is called over and over again.
@@ -121,12 +122,13 @@ void loop() {
   //Serial.println("Exit loop_node");
 
   // Send heartbeat if enough time has elapsed
+  /*
   if (heartbeatClock.check_trigger( (unsigned long)millis() )){
     Serial.print("Heartbeat Time: ");
     Serial.println(millis());
     DHTNode.publish_heartbeat();
   }
-  
+  */
   // Measure DHT and send data
   float humidity = dht.readHumidity();          // Read humidity (percent)
   float temp_f = dht.readTemperature(true);     // Read temperature as Fahrenheit
@@ -150,7 +152,7 @@ void loop() {
   //root.printTo(json_buffer, sizeof(json_buffer));
   //client.publish("outTopic", json_buffer);
 
-  DHTNode.publish_msg("measurement", "temperature", temp_f);
+  //DHTNode.publish_msg("measurement", "temperature", temp_f);
   DHTNode.publish_msg("measurement", "humidity", humidity);
 
   delay(5000);

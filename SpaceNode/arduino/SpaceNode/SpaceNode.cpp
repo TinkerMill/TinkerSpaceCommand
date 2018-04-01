@@ -68,7 +68,12 @@ SpaceNode::~SpaceNode(){ /*Nothing to Deconstruct*/ };
 
 // Set up the program.
 // This function is called once when the program starts.
-void SpaceNode::setupNode(const char* _mqttControlInputTopic = "/tinkermill/sensors/data") {
+void SpaceNode::setupNode(
+   const char* _mqttDataOutputTopic = "/tinkermill/sensors/data",
+   const char* _mqttControlInputTopic = "/tinkermill/sensors/control") {
+
+  // The topic to publish to.
+  m_mqttDataOutputTopic = _mqttDataOutputTopic;
 
   // The topic to subscribe to.
   m_mqttControlInputTopic = _mqttControlInputTopic;
@@ -253,37 +258,48 @@ void SpaceNode::publish_heartbeat(){
   root["sensorId"] = String(m_mqttClientId);
   root["messageType"] = "heartbeat";
 
+  yield();
+
   char json_buffer[200];
  
    root.printTo(json_buffer, sizeof(json_buffer));
    //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
-   m_mqttClient.publish("/tinkermill/sensors/data", json_buffer);
+   m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+
+  yield();
 }
 
 void SpaceNode::publish_msg(char * p_messageType, 
                             char * p_dataType, 
                             float message){
-  
+
   StaticJsonBuffer<512> jsonBuffer;
 
   JsonObject& root = jsonBuffer.createObject();
   root["sensorId"] = String(m_mqttClientId);
   root["messageType"] = p_messageType;
   JsonObject& data = root.createNestedObject("data");
-  //data["temp"] = 21;
-  //data[p_dataType] = message;
+
+  yield();
 
   JsonObject& value = data.createNestedObject(p_dataType);
   value["value"] = message;
-
+  
   root.prettyPrintTo(Serial);
+
+  yield();
 
   char json_buffer[512];
  
-  root.printTo(json_buffer, sizeof(json_buffer));
-  //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
-  m_mqttClient.publish("/tinkermill/sensors/data", json_buffer);
+  
+  int length = root.printTo(json_buffer, sizeof(json_buffer));
+  json_buffer[length] = 0;
+  m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer, length+1);
+
+  yield();
   
   m_mqttClient.loop();
+
+  yield();
 
 }
