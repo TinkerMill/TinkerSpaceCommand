@@ -29,6 +29,8 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
+#define MQTT_MAX_PACKET_SIZE 2048
+
 // SL Note: ToDo
 // class NodeSensor
 // class NodeHeartbeat
@@ -90,7 +92,7 @@ class SpaceNode{
     
     void publish_heartbeat();
     
-    void publish_msg(char*, char*, float);
+    void publish_msg(char* channelId, char* measurementType, float measurementValue);
  
 
 };

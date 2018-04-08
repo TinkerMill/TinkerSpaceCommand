@@ -252,38 +252,44 @@ void SpaceNode::loop_node(){
 void SpaceNode::publish_heartbeat(){
 
   //m_mqttClient.publish("/tinkermill/sensors/data", "heartbeat");
-  StaticJsonBuffer<200> jsonBuffer;
+  //  StaticJsonBuffer<200> jsonBuffer;
 
-  JsonObject& root = jsonBuffer.createObject();
-  root["sensorId"] = String(m_mqttClientId);
-  root["messageType"] = "heartbeat";
+  //JsonObject& root = jsonBuffer.createObject();
+  //root["sensorId"] = m_mqttClientId;
+  //root["messageType"] = "heartbeat";
 
   yield();
 
   char json_buffer[200];
- 
-   root.printTo(json_buffer, sizeof(json_buffer));
+
+  sprintf(json_buffer,
+	  "{ \"type\": \"heartbeat\","
+	  "  \"sensorId\", \"%s\"}",
+	  m_mqttClientId);
+  
+    Serial.println(json_buffer);
+	  //root.printTo(json_buffer, sizeof(json_buffer));
    //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
    m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
 
   yield();
 }
 
-void SpaceNode::publish_msg(char * p_messageType, 
-                            char * p_dataType, 
-                            float message){
+void SpaceNode::publish_msg(
+     char * channelId,
+     char *measurementType, 
+     float measurementValue){
 
   StaticJsonBuffer<512> jsonBuffer;
 
   JsonObject& root = jsonBuffer.createObject();
-  root["sensorId"] = String(m_mqttClientId);
-  root["messageType"] = p_messageType;
+  root["sensorId"] = m_mqttClientId;
+  root["messageType"] = "measurement";
   JsonObject& data = root.createNestedObject("data");
 
-  yield();
-
-  JsonObject& value = data.createNestedObject(p_dataType);
-  value["value"] = message;
+  JsonObject& value = data.createNestedObject(channelId);
+  value["value"] = measurementValue;
+  value["type"] = measurementType;
   
   root.prettyPrintTo(Serial);
 
@@ -294,11 +300,14 @@ void SpaceNode::publish_msg(char * p_messageType,
   
   int length = root.printTo(json_buffer, sizeof(json_buffer));
   json_buffer[length] = 0;
-  m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer, length+1);
 
+  Serial.println(json_buffer);
+  bool res = m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+  Serial.println(res);
+  
   yield();
   
-  m_mqttClient.loop();
+  this->loop_node();
 
   yield();
 
