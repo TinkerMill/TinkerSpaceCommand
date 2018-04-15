@@ -246,13 +246,10 @@ void SpaceNode::loop_node(){
   
 }
 
-//void SpaceNode::heartbeat(){
-//  // 
-//}
+
 void SpaceNode::publish_heartbeat(){
 
-  //m_mqttClient.publish("/tinkermill/sensors/data", "heartbeat");
-  StaticJsonBuffer<200> jsonBuffer;
+ // StaticJsonBuffer<200> jsonBuffer;
 
   JsonObject& root = jsonBuffer.createObject();
   root["sensorId"] = String(m_mqttClientId);
@@ -260,20 +257,23 @@ void SpaceNode::publish_heartbeat(){
 
   yield();
 
-  char json_buffer[200];
+  char jsonCharBuffer[200];
  
-   root.printTo(json_buffer, sizeof(json_buffer));
-   //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
-   m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+   root.printTo(jsonCharBuffer, sizeof(jsonCharBuffer));
+   //m_mqttClient.publish(m_mqttControlInputTopic, jsonCharBuffer);
+   //m_mqttClient.publish("/tinkermill/sensors/data", "heartbeat");
+   m_mqttClient.publish(m_mqttDataOutputTopic, jsonCharBuffer);
 
   yield();
+
+  jsonBuffer.clear();
 }
 
 void SpaceNode::publish_msg(char * p_messageType, 
                             char * p_dataType, 
                             float message){
 
-  StaticJsonBuffer<512> jsonBuffer;
+  //StaticJsonBuffer<512> jsonBuffer;
 
   JsonObject& root = jsonBuffer.createObject();
   root["sensorId"] = String(m_mqttClientId);
@@ -289,17 +289,19 @@ void SpaceNode::publish_msg(char * p_messageType,
 
   yield();
 
-  char json_buffer[512];
+  char jsonCharBuffer[512];
  
   
-  int length = root.printTo(json_buffer, sizeof(json_buffer));
-  json_buffer[length] = 0;
-  m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer, length+1);
+  int length = root.printTo(jsonCharBuffer, sizeof(jsonCharBuffer));
+  jsonCharBuffer[length] = 0;
+  m_mqttClient.publish(m_mqttDataOutputTopic, jsonCharBuffer, length+1);
 
   yield();
   
   m_mqttClient.loop();
 
   yield();
+  
+  jsonBuffer.clear();
 
 }

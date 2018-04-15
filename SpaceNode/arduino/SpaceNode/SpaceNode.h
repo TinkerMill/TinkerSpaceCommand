@@ -50,6 +50,9 @@ class SpaceNode{
     // The topic for incoming control messages
     const char* m_mqttControlInputTopic;
 
+    // Arduino JSON buffer
+    StaticJsonBuffer<512> jsonBuffer;
+
     // The topic for outgoing data messages.
     const char* m_mqttDataOutputTopic;
     char m_mqttClientId[64];
