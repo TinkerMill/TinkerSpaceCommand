@@ -339,7 +339,6 @@ void SpaceNode::sendMqttMessage(
   Serial.println(serializedJsonBuffer);
   
   bool res = m_mqttClient.publish(m_mqttDataOutputTopic, serializedJsonBuffer);
-  Serial.println(res);
   
   yield();
   
