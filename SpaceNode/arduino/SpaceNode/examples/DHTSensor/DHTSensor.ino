@@ -122,13 +122,12 @@ void loop() {
   //Serial.println("Exit loop_node");
 
   // Send heartbeat if enough time has elapsed
-  /*
   if (heartbeatClock.check_trigger( (unsigned long)millis() )){
     Serial.print("Heartbeat Time: ");
     Serial.println(millis());
     DHTNode.publish_heartbeat();
   }
-  */
+  
   // Measure DHT and send data
   float humidity = dht.readHumidity();          // Read humidity (percent)
   float temp_f = dht.readTemperature(true);     // Read temperature as Fahrenheit
@@ -137,23 +136,9 @@ void loop() {
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
-  
-  //StaticJsonBuffer<200> jsonBuffer;
 
-  //JsonObject& root = jsonBuffer.createObject();
-  //root["sensor"] = String(ESP.getChipId());
-
-  //root["temperature"] = temp_f;
-  //root["humidity"] = humidity;
-  //root.printTo(Serial);
-
-  //char json_buffer[512];
- 
-  //root.printTo(json_buffer, sizeof(json_buffer));
-  //client.publish("outTopic", json_buffer);
-
-  //DHTNode.publish_msg("measurement", "temperature", temp_f);
-  DHTNode.publish_msg("measurement", "humidity", humidity);
+  DHTNode.publish_msg("temperature", "temperature", temp_f);
+  DHTNode.publish_msg("humidity", "humidity", humidity);
 
   delay(5000);
 }
