@@ -41,58 +41,83 @@ class SpaceNode{
   private:
     // Constructor private to ensure singleton instance of object
     SpaceNode();
+
     // Copy constructor is also private to ensure that the singleton instance
     //  cannot be copied.
     SpaceNode(SpaceNode const&){};
+
     // Assignment operator is private so the static instance cannot be passed
     //  to a new object.
     SpaceNode& operator=(SpaceNode const&){};
+
     // Pointer to singleton object used to ensure that only one instance is created
     static SpaceNode* m_pInstance;
-    // The topic for incoming control messages
+
+    // The MQTT topic for incoming control messages
     const char* m_mqttControlInputTopic;
 
-    // The topic for outgoing data messages.
+    // The MQTT topic for outgoing data messages.
     const char* m_mqttDataOutputTopic;
-    char m_mqttClientId[64];
-    char m_hostname[24];
-    WiFiClient m_wifiClient;
-    PubSubClient m_mqttClient;
-    //PubSubClient m_mqttClient(WiFiClient);
-    //int* static_writablePins;
-    //int static_numWritablePins;
-    //
-    int heartbeatTimer = 1000; // default 1s
-    //void heartbeat();
 
+    // The MQTT client ID.
+    char m_mqttClientId[64];
+
+    // The hostname for the WIFI client.
+    char m_hostname[24];
+
+    // The WIFI client for communicating with the MQTT broker.
+    WiFiClient m_wifiClient;
+
+    // The MQTT client
+    PubSubClient m_mqttClient;
+
+    // The time between heartbeats, in milliseconds.
+    //
+    // The default is 1 second = 1000 milliseconds
+    long heartbeatTimer = 1000;
+
+    // Set up the MQTT connection.
+    void setupMqttConnection();
+
+    // The MQTT callback for incoming messages.
+    static void processIncomingMqttMessage(char* topic, byte* payload, unsigned int length);
 
   public:
-    // 
-    //SpaceNode(const char* _mqttControlInputTopic);
-    // Instance method returns a static pointer to the SpaceNode object
-    //  This ensures only one instance is created for the class
-    //  i.e. there can only be one SpaceNode object in existance at at time within
-    //  an Arduino .ino file.
+    // Get the singleton SpaceNode instance.
+    //
+    // There can only be one SpaceNode object in existance at at time within
+    // an Arduino .ino file.
     static SpaceNode* Instance();
+
     // Deconstructor
     ~SpaceNode();
 
+    // Set up the node.
+    //
+    // The data output topic gves the MQTT topic for sensor measurements
+    // an heartbeats.
+    //
+    // The control input topic is for messages coming in that will be controlled
+    // by this node.
     void setupNode(
       const char* _mqttDataOutputTopic,
       const char* _mqttControlInputTopic);
 
-    void setup_mqtt_session();
-    static void mqttCallback(char* topic, byte* payload, unsigned int length);
-    //void mqttCallback(char* topic, byte* payload, unsigned int length);
-    //void mqttCallback(char* topic, byte* payload, unsigned int length);
-    //void mqttCallback(char* topic, uint8_t* payload, unsigned int length);
-    void reconnect();
-    bool check_connection();
-    void loop_node();
-    
-    void publish_heartbeat();
-    
-    void publish_msg(char* channelId, char* measurementType, float measurementValue);
+    // Reconnect the local MQTT client ot the broker.
+    void reconnectConnect();
+
+    // Check the connection of the local MQTT client to the MQTT broker?
+    bool isMqttConnected();
+
+    // Handle everything that needs to happen in a loop iteration of the
+    // space node.
+    void loopNode();
+
+    // Publish a heartbeat message from this node.
+    void publishHeartbeat();
+
+    // Publish a sensor measurement that is a float.
+    void publishMeasurement(char* channelId, char* measurementType, float measurementValue);
  
 
 };

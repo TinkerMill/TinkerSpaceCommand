@@ -114,12 +114,13 @@ void SpaceNode::setupNode(
   Serial.print("MQTT Client ID: ");
   Serial.println(m_mqttClientId);
 
-  setup_mqtt_session();
+  setupMqttConnection();
 }
 
 // The function to be called whenever a message comes in on
 // the input topic.
-void SpaceNode::mqttCallback(char* topic, byte* payload, unsigned int length) {
+void SpaceNode::processIncomingMqttMessage(
+    char* topic, byte* payload, unsigned int length) {
   
   // The writable pins on the Sparkfun Thing Dev board.
   int static_writablePins[] = { 0, 2, 4, 5, 12, 13, 14, 15, 16 };
@@ -128,7 +129,7 @@ void SpaceNode::mqttCallback(char* topic, byte* payload, unsigned int length) {
   int static_numWritablePins = sizeof(static_writablePins) / sizeof(int);
 
 
-  Serial.print("Message arrived [");
+  Serial.print("MQTT Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
   for (int i = 0; i < length; i++) {
@@ -168,7 +169,7 @@ void SpaceNode::mqttCallback(char* topic, byte* payload, unsigned int length) {
 }
 
 // Use mDNS to locate an MQTT broker and attach.
-void SpaceNode::setup_mqtt_session() {
+void SpaceNode::setupMqttConnection() {
   if (!MDNS.begin(m_hostname)) {
     Serial.println("Unable to set up mDNS");
   }
@@ -188,13 +189,14 @@ void SpaceNode::setup_mqtt_session() {
       m_mqttClient.setServer(MDNS.IP(0), MDNS.port(0));
 
       Serial.println("mqtt Server is set, setting Callback next");
+
       // Set the function to be called every time a message comes in.
       // Set callback to a static function since you cannot easily pass a 
       // member function to the PubSubClient.setCallback() method, since
       // the expected signature is looking for a standard function
       // not a member function (maybe fix for future version)
-      m_mqttClient.setCallback(&SpaceNode::mqttCallback);
-      Serial.println("Callback is set");
+      m_mqttClient.setCallback(&SpaceNode::processIncomingMqttMessage);
+      Serial.println("MQTT callback is set");
 
       break;
     }
@@ -203,7 +205,7 @@ void SpaceNode::setup_mqtt_session() {
 
 
 // The connection to the MQTT broker has been lost. Try and reconnect.
-void SpaceNode::reconnect() {
+void SpaceNode::reconnectMqtt() {
   // Loop until we're reconnected
   while (!m_mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
@@ -227,55 +229,43 @@ void SpaceNode::reconnect() {
   }
 }
 
-bool SpaceNode::check_connection(){
+bool SpaceNode::isMqttConnected(){
   return m_mqttClient.connected();
 }
 
-void SpaceNode::loop_node(){
+void SpaceNode::loopNode(){
   // If not connected to the MQTT broker, either because has
   // never been connected or because the connection was lost.
-  if (!check_connection()) {
-    reconnect();
+  if (!isMqttConnected()) {
+    reconnectMqtt();
   }
 
   // Have the MQTT client process any data.
   m_mqttClient.loop();
-
-  // Send heartbeat if sufficient time has elapsed
-  // SpaceNode::heartbeat();
-  
 }
 
-//void SpaceNode::heartbeat(){
-//  // 
-//}
-void SpaceNode::publish_heartbeat(){
+void SpaceNode::publishHeartbeat(){
+  StaticJsonBuffer<200> jsonBuffer;
 
-  //m_mqttClient.publish("/tinkermill/sensors/data", "heartbeat");
-  //  StaticJsonBuffer<200> jsonBuffer;
-
-  //JsonObject& root = jsonBuffer.createObject();
-  //root["sensorId"] = m_mqttClientId;
-  //root["messageType"] = "heartbeat";
+  JsonObject& root = jsonBuffer.createObject();
+  root["sensorId"] = m_mqttClientId;
+  root["messageType"] = "heartbeat";
 
   yield();
 
   char json_buffer[200];
+  root.printTo(json_buffer, sizeof(json_buffer));
 
-  sprintf(json_buffer,
-	  "{ \"type\": \"heartbeat\","
-	  "  \"sensorId\", \"%s\"}",
-	  m_mqttClientId);
+  m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+
+  yield();
   
-    Serial.println(json_buffer);
-	  //root.printTo(json_buffer, sizeof(json_buffer));
-   //m_mqttClient.publish(m_mqttControlInputTopic, json_buffer);
-   m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+  this->loopNode();
 
   yield();
 }
 
-void SpaceNode::publish_msg(
+void SpaceNode::publishMeasurement(
      char * channelId,
      char *measurementType, 
      float measurementValue){
@@ -295,20 +285,19 @@ void SpaceNode::publish_msg(
 
   yield();
 
-  char json_buffer[512];
- 
+  char serializedJsonBuffer[512];
   
-  int length = root.printTo(json_buffer, sizeof(json_buffer));
-  json_buffer[length] = 0;
+  int length = root.printTo(serializedJsonBuffer, sizeof(serializedJsonBuffer));
+  serializedJsonBuffer[length] = 0;
 
-  Serial.println(json_buffer);
-  bool res = m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+  Serial.println(serializedJsonBuffer);
+  
+  bool res = m_mqttClient.publish(m_mqttDataOutputTopic, serializedJsonBuffer);
   Serial.println(res);
   
   yield();
   
-  this->loop_node();
+  this->loopNode();
 
   yield();
-
 }
