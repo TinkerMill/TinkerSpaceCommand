@@ -78,6 +78,9 @@ class SpaceNode{
     // Set up the MQTT connection.
     void setupMqttConnection();
 
+    // Serialize and send the JSON message
+    void sendMqttMessage(JsonObject& jsonRoot);
+  
     // The MQTT callback for incoming messages.
     static void processIncomingMqttMessage(char* topic, byte* payload, unsigned int length);
 
@@ -103,7 +106,7 @@ class SpaceNode{
       const char* _mqttControlInputTopic);
 
     // Reconnect the local MQTT client ot the broker.
-    void reconnectConnect();
+    void reconnectMqtt();
 
     // Check the connection of the local MQTT client to the MQTT broker?
     bool isMqttConnected();
@@ -117,7 +120,15 @@ class SpaceNode{
 
     // Publish a sensor measurement that is a float.
     void publishMeasurement(char* channelId, char* measurementType, float measurementValue);
- 
+
+    
+    // Publish a sensor measurement that is an integer.
+    void publishMeasurement(char* channelId, char* measurementType, int measurementValue);
+
+    
+    // Publish a sensor measurement that is a string.
+    void publishMeasurement(char* channelId, char* measurementType, char* measurementValue);
+
 
 };
 

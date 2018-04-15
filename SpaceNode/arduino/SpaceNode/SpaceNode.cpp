@@ -247,14 +247,14 @@ void SpaceNode::loopNode(){
 void SpaceNode::publishHeartbeat(){
   StaticJsonBuffer<200> jsonBuffer;
 
-  JsonObject& root = jsonBuffer.createObject();
-  root["sensorId"] = m_mqttClientId;
-  root["messageType"] = "heartbeat";
+  JsonObject& jsonRoot = jsonBuffer.createObject();
+  jsonRoot["sensorId"] = m_mqttClientId;
+  jsonRoot["messageType"] = "heartbeat";
 
   yield();
 
   char json_buffer[200];
-  root.printTo(json_buffer, sizeof(json_buffer));
+  jsonRoot.printTo(json_buffer, sizeof(json_buffer));
 
   m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
 
@@ -274,16 +274,60 @@ void SpaceNode::publishMeasurement(
 
   //StaticJsonBuffer<512> jsonBuffer;
 
-  JsonObject& root = jsonBuffer.createObject();
-  root["sensorId"] = m_mqttClientId;
-  root["messageType"] = "measurement";
-  JsonObject& data = root.createNestedObject("data");
+  JsonObject& jsonRoot = jsonBuffer.createObject();
+  jsonRoot["sensorId"] = m_mqttClientId;
+  jsonRoot["messageType"] = "measurement";
+  JsonObject& data = jsonRoot.createNestedObject("data");
 
   JsonObject& value = data.createNestedObject(channelId);
   value["value"] = measurementValue;
   value["type"] = measurementType;
+
+  this->sendMqttMessage(jsonRoot);
+}
+
+void SpaceNode::publishMeasurement(
+     char * channelId,
+     char *measurementType, 
+     int measurementValue){
+
+  StaticJsonBuffer<512> jsonBuffer;
+
+  JsonObject& jsonRoot = jsonBuffer.createObject();
+  jsonRoot["sensorId"] = m_mqttClientId;
+  jsonRoot["messageType"] = "measurement";
+  JsonObject& data = jsonRoot.createNestedObject("data");
+
+  JsonObject& value = data.createNestedObject(channelId);
+  value["value"] = measurementValue;
+  value["type"] = measurementType;
+
+  this->sendMqttMessage(jsonRoot);
+}
+
+void SpaceNode::publishMeasurement(
+     char* channelId,
+     char* measurementType, 
+     char* measurementValue){
+
+  StaticJsonBuffer<512> jsonBuffer;
+
+  JsonObject& jsonRoot = jsonBuffer.createObject();
+  jsonRoot["sensorId"] = m_mqttClientId;
+  jsonRoot["messageType"] = "measurement";
+  JsonObject& data = jsonRoot.createNestedObject("data");
+
+  JsonObject& value = data.createNestedObject(channelId);
+  value["value"] = measurementValue;
+  value["type"] = measurementType;
+
+  this->sendMqttMessage(jsonRoot);
+}
+
+void SpaceNode::sendMqttMessage(
+    JsonObject& jsonRoot) {
   
-  root.prettyPrintTo(Serial);
+  jsonRoot.prettyPrintTo(Serial);
 
   yield();
 
@@ -297,7 +341,7 @@ void SpaceNode::publishMeasurement(
 =======
   char serializedJsonBuffer[512];
   
-  int length = root.printTo(serializedJsonBuffer, sizeof(serializedJsonBuffer));
+  int length = jsonRoot.printTo(serializedJsonBuffer, sizeof(serializedJsonBuffer));
   serializedJsonBuffer[length] = 0;
 >>>>>>> origin/keithhughes
 
@@ -312,3 +356,4 @@ void SpaceNode::publishMeasurement(
 
   yield();
 }
+
