@@ -40,9 +40,6 @@ TimeCheck heartbeatClock((unsigned long)millis(), (unsigned long)20000);
 // Setup the Digital Humidity Temperature Sensor (DHT)
 #define DHTTYPE DHT22
 #define DHTPIN  4
-long lastMsg = 0;
-char msg[50];
-int value = 0;
 
 // Initialize DHT sensor 
 // NOTE: For working with a faster than ATmega328p 16 MHz Arduino chip, like an ESP8266,
@@ -55,7 +52,7 @@ int value = 0;
 DHT dht(DHTPIN, DHTTYPE, 11); // 11 works fine for ESP8266
 
 // Set up the WiFi connection.
-void setup_wifi(const char* ssid = "TinkerMill", const char* password = "password") {
+void setupWifi(const char* ssid = "TinkerMill", const char* password = "password") {
 
   // A slight delay is useful to make sure everything is fully
   // initialized on the chip and board.
@@ -81,15 +78,14 @@ void setup_wifi(const char* ssid = "TinkerMill", const char* password = "passwor
   Serial.println(WiFi.localIP());
 }
 
-
-
 void setup(){
   // Initialize all chip pins that are meant to be written to as writable.
   for (int pinIndex = 0; pinIndex < NUM_WRITABLE_PINS; pinIndex++) {
     pinMode(WRITABLE_PINS[pinIndex], OUTPUT);
   }
 
-  pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+  // Initialize the BUILTIN_LED pin as an output
+  pinMode(BUILTIN_LED, OUTPUT);
 
   // Output will be sent to the serial monitor at 115200 baud.
   Serial.begin(115200);
@@ -98,47 +94,48 @@ void setup(){
 
   // Set up the WiFi connection to the local network.
   // Update these with values suitable for your network.
-  // The SSID of the wireless network to attach to.
-  //    ssid = _ssid;
-  //#define SSID "TinkerMill"
-  // The password for the wireless network.
-  //    password = _password;
-  setup_wifi();
+  setupWifi();
 
   Serial.println("Wifi Setup Exited................................");
 
-  DHTNode.setupNode("/tinkermill/sensors/data", 
+  // Tell the node the MQTT topics for sending the data out on and
+  // for incoming 
+  DHTNode.setupNode(
+    "/tinkermill/sensors/data", 
     "/tinkermill/sensors/control");
 }
 
 // This function is called over and over again.
 //
-// It will give the MQTT client a change to process any messages that
-// have come in.
+// It will give the MQTT client a chance to process any messages
+// that have come in.
 void loop() {
-  // loop_node method must be called once per loop for proper node operation
-  //Serial.println("Enter loop_node");
-  DHTNode.loop_node();
-  //Serial.println("Exit loop_node");
+  // loopNode method must be called once per loop for proper 
+  // node operation. It sends and receives MQTT data.
+  DHTNode.loopNode();
 
   // Send heartbeat if enough time has elapsed
   if (heartbeatClock.check_trigger( (unsigned long)millis() )){
     Serial.print("Heartbeat Time: ");
     Serial.println(millis());
-    DHTNode.publish_heartbeat();
+    DHTNode.publishHeartbeat();
   }
   
-  // Measure DHT and send data
-  float humidity = dht.readHumidity();          // Read humidity (percent)
-  float temp_f = dht.readTemperature(true);     // Read temperature as Fahrenheit
+  // Measure DHT and send data.
+  // humidity is percent relative humidity.
+  // temperature is in Fahrenheit
+  float humidity = dht.readHumidity();
+  float temp_f = dht.readTemperature(true); 
+  
   // Check if any reads failed and exit early (to try again).
   if (isnan(humidity) || isnan(temp_f)) {
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
 
-  DHTNode.publish_msg("temperature", "temperature", temp_f);
-  DHTNode.publish_msg("humidity", "humidity", humidity);
+  // Publish the new data.
+  DHTNode.publishMeasurement("temperature", "temperature", temp_f);
+  DHTNode.publishMeasurement("humidity", "humidity", humidity);
 
   delay(5000);
 }
