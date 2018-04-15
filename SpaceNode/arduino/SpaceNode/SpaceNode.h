@@ -69,6 +69,7 @@ class SpaceNode{
 
     // The MQTT client
     PubSubClient m_mqttClient;
+    #define MQTT_MAX_PACKET_SIZE 2048
 
     // The time between heartbeats, in milliseconds.
     //

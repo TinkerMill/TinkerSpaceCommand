@@ -272,7 +272,7 @@ void SpaceNode::publishMeasurement(
      char *measurementType, 
      float measurementValue){
 
-  //StaticJsonBuffer<512> jsonBuffer;
+  StaticJsonBuffer<512> jsonBuffer;
 
   JsonObject& jsonRoot = jsonBuffer.createObject();
   jsonRoot["sensorId"] = m_mqttClientId;
@@ -331,19 +331,10 @@ void SpaceNode::sendMqttMessage(
 
   yield();
 
-<<<<<<< HEAD
-  char jsonCharBuffer[512];
- 
-  
-  int length = root.printTo(jsonCharBuffer, sizeof(jsonCharBuffer));
-  jsonCharBuffer[length] = 0;
-  m_mqttClient.publish(m_mqttDataOutputTopic, jsonCharBuffer, length+1);
-=======
   char serializedJsonBuffer[512];
   
   int length = jsonRoot.printTo(serializedJsonBuffer, sizeof(serializedJsonBuffer));
   serializedJsonBuffer[length] = 0;
->>>>>>> origin/keithhughes
 
   Serial.println(serializedJsonBuffer);
   
