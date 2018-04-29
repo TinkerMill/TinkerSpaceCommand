@@ -1,1 +1,1 @@
-__all__ = ["comms", "events", "entities", "processor", "webapp"]
+__all__ = ["comms", "events", "entities", "processor", "webapp", "persistence"]

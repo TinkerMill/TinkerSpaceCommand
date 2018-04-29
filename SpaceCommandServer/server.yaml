@@ -1,5 +1,5 @@
 communication:
   mqtt:
-    serverClientId: tinker_space_command_server
+    serverClientId: tinker_space_command_server_dev
     sensorInputTopic: /tinkermill/sensors/data
     mqttMdnsServiceName: _mqtt._tcp.local.
