@@ -55,6 +55,9 @@ class SensorProcessor:
     
   def stop(self):
     self.sensor_processor_thread.stop()
+
+  def register_sensor_update_observer(self, observer):
+    self.sensor_measurement_subject.subscribe(observer)
     
   def process_sensor_input(self, message, time_received):
     print("Sensor processor got message {} at time {}".format(message, time_received))
@@ -98,7 +101,6 @@ class SensorProcessor:
           # Update the value in the active channel
           active_channel.update_current_value(value, time_received)
 
-          active_sensed_entity.show_values()
           self.sensor_measurement_subject.on_next(sensor_channel_measurement_event)
         else:
           print("Sensor {} has unknown channel {}".format(sensor_id, channel_id))

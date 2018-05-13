@@ -13,6 +13,7 @@ from TinkerSpaceCommandServer.comms.MqttCommunicationProvider import *
 from TinkerSpaceCommandServer.processor.SensorProcessor import *
 from TinkerSpaceCommandServer.entities.EntityRegistry import *
 from TinkerSpaceCommandServer.events.StandardEvents import *
+from TinkerSpaceCommandServer.persistence.EventPersistence import *
 
 # Read the configuration for the server.
 #
@@ -41,4 +42,8 @@ entity_registry.get_sensor_active_model('sensor.esp8266.FE13DE').register_value_
 server = SpaceCommandServer(config)
 server.sensor_processor = SensorProcessor(entity_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
+event_persistence = EventPersistence()
+event_persistence.attach_sensor_processor(server.sensor_processor)
+event_persistence.start()
+
 server.start()
