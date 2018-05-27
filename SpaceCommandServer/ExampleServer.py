@@ -42,7 +42,7 @@ entity_registry.get_sensor_active_model('sensor.esp8266.FE13DE').register_value_
 server = SpaceCommandServer(config)
 server.sensor_processor = SensorProcessor(entity_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
-event_persistence = EventPersistence()
+event_persistence = EventPersistence(config)
 event_persistence.attach_sensor_processor(server.sensor_processor)
 event_persistence.start()
 
