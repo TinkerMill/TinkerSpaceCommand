@@ -38,7 +38,7 @@ class EventPersistence:
 
     sensor_tablename = influxdb_config["sensors"]["databaseName"]
     
-    self_persistence_client = InfluxDBClient(server_host, server_port, server_username, server_password, sensor_tablename)
+    self.persistence_client = InfluxDBClient(server_host, server_port, server_username, server_password, sensor_tablename)
 
   def attach_sensor_processor(self, sensor_processor):
     sensor_processor.register_sensor_update_observer(self.persistence_observer)
@@ -51,6 +51,7 @@ class EventPersistence:
 
   def persist_measurement(self, measurement_event):
     try:
+      print("Perparing persist")
       json_body = [
         {
           "measurement": Constants.INFLUXDB_MEASUREMENT_NAME_SENSORS,
@@ -59,12 +60,17 @@ class EventPersistence:
             Constants.INFLUXDB_TAG_NAME_SENSOR: measurement_event.sensor_active_model.sensor_entity_description.external_id,
             Constants.INFLUXDB_TAG_NAME_CHANNEL: measurement_event.active_channel.channel_id
           },
-          "time": datetime.datetime.fromtimestamp(measurement_event.time_received).isoformat(),
+          "time": datetime.datetime.fromtimestamp(measurement_event.time_received).isoformat() + 'Z',
           "fields": {
             "value": measurement_event.value
           }
         }
       ]
+
       print(json_body)
-    except Exception as err:
-      err.print_stacktrace()
+      foo = self.persistence_client.write_points(json_body)
+      print(foo)
+      print("Data point persisted")
+    except:
+      print(traceback.format_exc())
+

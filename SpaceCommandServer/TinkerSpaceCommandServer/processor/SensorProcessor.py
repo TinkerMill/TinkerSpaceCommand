@@ -60,7 +60,7 @@ class SensorProcessor:
     self.sensor_measurement_subject.subscribe(observer)
     
   def process_sensor_input(self, message, time_received):
-    print("Sensor processor got message {} at time {}".format(message, time_received))
+    #print("Sensor processor got message {} at time {}".format(message, time_received))
 
     message_type = message[Messages.MESSAGE_FIELD_MESSAGE_TYPE]
 
