@@ -45,5 +45,6 @@ server.addCommunicationProvider( MqttCommunicationProvider(config) )
 event_persistence = InfluxEventPersistence(config)
 event_persistence.attach_sensor_processor(server.sensor_processor)
 event_persistence.start()
+server.event_persistence = event_persistence
 
 server.start()

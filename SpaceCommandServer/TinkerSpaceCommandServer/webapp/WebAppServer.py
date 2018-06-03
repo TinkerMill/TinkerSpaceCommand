@@ -6,6 +6,7 @@
 
 from flask import Flask, Response, render_template
 import os
+import json
 
 class WebAppServer:
 
@@ -33,6 +34,10 @@ class WebAppServer:
         self.add_endpoint("/space/<string:space_id>","space", self.space_endpoint)
         self.add_endpoint("/sensors","sensors", self.sensors_endpoint)
         self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
+        self.add_endpoint("/api/v1/spaces","api_v1_spaces", self.api_v1_spaces_endpoint)
+        self.add_endpoint("/api/v1/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
+        self.add_endpoint("/api/v1/sensors","api_v1_sensors", self.api_v1_sensors_endpoint)
+        self.add_endpoint("/api/v1/sensor/<string:sensor_id>","api_v1_sensor", self.api_v1_sensor_endpoint)
 
     def start(self):
         self.app.run(host='0.0.0.0')
@@ -61,15 +66,54 @@ class WebAppServer:
 
     def sensors_endpoint(self, *args):
         sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
+
+        template = render_template("sensors.html", sensors=sensors)
+        
+        return Response(json.dumps(values), status=200, headers={})
+
+    def sensor_endpoint(self, sensor_id=None, *args):
+        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+
+        template = render_template("sensor.html", sensor=sensor)
+        
+        return Response(json.dumps(value), status=200, headers={})
+    
+
+    def api_v1_spaces_endpoint(self, *args):
+        spaces = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
+        
+        values = []
+        for space in spaces:
+            values.append(self.render_space_data(space))
+
+        return Response(json.dumps(values), status=200, headers={'ContentType': 'application/json'})
+
+    def api_v1_space_endpoint(self, space_id=None, *args):
+        space = self.server.sensor_processor.entity_registry.get_sensed_active_model(space_id)
+        
+        value = self.render_space_data(space)
+
+        return Response(json.dumps(value), status=200, headers={'ContentType': 'application/json'})
+
+    def render_space_data(self, space):
+        space_data = {
+            'externalId': space.sensed_entity_description.external_id,
+            'name': space.sensed_entity_description.name
+        }
+
+        return space_data
+    
+    def api_v1_sensors_endpoint(self, *args):
+        sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
         
         template = render_template("sensors.html", sensors=sensors)
 
-        return Response(template, status=200, headers={})
+        return Response(template, status=200, headers={'ContentType': 'application/json'})
 
-    def sensor_endpoint(self, sensor_id=None, *args):
+    def api_v1_sensor_endpoint(self, sensor_id=None, *args):
         sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
         
         template = render_template("sensor.html", sensor=sensor)
 
-        return Response(template, status=200, headers={})
-    
+        return Response(template, status=200, headers={ 'ContentType': 'application/json'})
+

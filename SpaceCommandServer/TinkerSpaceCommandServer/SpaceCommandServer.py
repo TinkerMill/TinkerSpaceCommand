@@ -18,6 +18,7 @@ class SpaceCommandServer:
     self.communicationProviders = []
 
     self.sensor_processor = None
+    self.event_persistence = None
     self.webapp = WebAppServer.WebAppServer(__name__, self)
     
   def start(self):
