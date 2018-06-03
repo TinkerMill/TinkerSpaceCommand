@@ -253,18 +253,19 @@ void SpaceNode::publishHeartbeat(){
 
   yield();
 
-  char json_buffer[200];
-  jsonRoot.printTo(json_buffer, sizeof(json_buffer));
-
-  m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
-
-  yield();
-  
-  this->loopNode();
-
-  yield();
-
-  jsonBuffer.clear();
+ // char json_buffer[200];
+ // jsonRoot.printTo(json_buffer, sizeof(json_buffer));
+ //
+ // m_mqttClient.publish(m_mqttDataOutputTopic, json_buffer);
+ //
+ // yield();
+ // 
+ // this->loopNode();
+ //
+ // yield();
+ //
+ // jsonBuffer.clear();
+  this->sendMqttMessage(jsonRoot);
 }
 
 void SpaceNode::publishMeasurement(

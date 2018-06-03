@@ -1,5 +1,14 @@
 communication:
   mqtt:
-    serverClientId: tinker_space_command_server
+    serverClientId: tinker_space_command_server_dev
     sensorInputTopic: /tinkermill/sensors/data
     mqttMdnsServiceName: _mqtt._tcp.local.
+persistence:
+  influxdb:
+    server:
+      host: localhost
+      port: 8086
+      username: root
+      password: root
+    sensors:
+      databaseName: tinkermill_spacecommand

@@ -1,6 +1,21 @@
 sensors:
   - externalId: sensor.esp8266_8C8E0D
-    name: DHT 22 sensor 0
+    name: DHT 22 sensor 8C8E0D
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+    active: true
+  - externalId: sensor.esp8266_CC1300
+    name: DHT 22 sensor CC1300
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+    active: true
+  - externalId: sensor.esp8266_E35BFD
+    name: DHT 22 sensor E35BFD
+    description: foop
+    sensorDetail: sensor.esp8266.dht22
+    active: true
+  - externalId: sensor.esp8266_E23ED1
+    name: DHT 22 sensor E23ED1
     description: foop
     sensorDetail: sensor.esp8266.dht22
     active: true
@@ -22,6 +37,12 @@ physicalLocations:
   - externalId: tinkermill.bay.classroom
     name: TinkerMill Classroom Bay
     description: The classroom of Tinkermill
+  - externalId: tinkermill.bay.back
+    name: TinkerMill Back Bay
+    description: The back bay of Tinkermill, woodshop
+  - externalId: tinkermill.bay.center
+    name: TinkerMill Center Bay
+    description: The center bay of Tinkermill, metal shop
 
 sensorAssociations:
   - sensorId: sensor.esp8266_8C8E0D
@@ -32,6 +53,12 @@ sensorAssociations:
     sensedId: tinkermill.bay.main
   - sensorId: sensor.esp8266.123456
     sensedId: tinkermill.bay.classroom
+  - sensorId: sensor.esp8266_E35BFD
+    sensedId: tinkermill.bay.classroom
+  - sensorId: sensor.esp8266_E23ED1
+    sensedId: tinkermill.bay.back
+  - sensorId: sensor.esp8266_CC1300
+    sensedId: tinkermill.bay.center
 
 sensorDetails:
   - externalId: sensor.esp8266.dht22

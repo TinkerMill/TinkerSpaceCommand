@@ -8,8 +8,10 @@
 # Written by Keith Hughes
 #
 
+from TinkerSpaceCommandServer.events.StandardEvents import SensorChannelMeasurementEvent
 from TinkerSpaceCommandServer import Messages
 from TinkerSpaceCommandServer import Constants
+from rx.subjects import Subject
 from threading import Thread
 import time
 
@@ -44,15 +46,21 @@ class SensorProcessor:
   def __init__(self, entity_registry):
     self.entity_registry = entity_registry
 
+    # An RX subject for any sensor measurement
+    self.sensor_measurement_subject = Subject()
+
   def start(self):
     self.sensor_processor_thread = SensorProcessorOfflineThread(self)
     self.sensor_processor_thread.start()
     
   def stop(self):
     self.sensor_processor_thread.stop()
+
+  def register_sensor_update_observer(self, observer):
+    self.sensor_measurement_subject.subscribe(observer)
     
   def process_sensor_input(self, message, time_received):
-    print("Sensor processor got message {} at time {}".format(message, time_received))
+    #print("Sensor processor got message {} at time {}".format(message, time_received))
 
     message_type = message[Messages.MESSAGE_FIELD_MESSAGE_TYPE]
 
@@ -88,10 +96,12 @@ class SensorProcessor:
           measurement_type = active_channel.channel_description.measurement_type
           value = channel_data[Messages.MESSAGE_FIELD_VALUE]
 
+          sensor_channel_measurement_event = SensorChannelMeasurementEvent(sensor_active_model, active_sensed_entity, active_channel, value, time_received)
+          
           # Update the value in the active channel
           active_channel.update_current_value(value, time_received)
 
-          active_sensed_entity.show_values()
+          self.sensor_measurement_subject.on_next(sensor_channel_measurement_event)
         else:
           print("Sensor {} has unknown channel {}".format(sensor_id, channel_id))
     else:
