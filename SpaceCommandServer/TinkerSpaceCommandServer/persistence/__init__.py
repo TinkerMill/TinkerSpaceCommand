@@ -1,1 +1,1 @@
-__all__ = ["Entities", "EntityRegistry"]
+__all__ = ["InfluxEventPersistence"]

@@ -25,7 +25,7 @@ class EventPersistenceObserver(Observer):
   def on_error(self, error):
     print("Event persistence subject Error Occurred: {0}".format(error))
     
-class EventPersistence:
+class InfluxEventPersistence:
   def __init__(self, config):
     self.persistence_observer = EventPersistenceObserver(self)
 
@@ -51,7 +51,6 @@ class EventPersistence:
 
   def persist_measurement(self, measurement_event):
     try:
-      print("Perparing persist")
       json_body = [
         {
           "measurement": Constants.INFLUXDB_MEASUREMENT_NAME_SENSORS,
@@ -61,16 +60,22 @@ class EventPersistence:
             Constants.INFLUXDB_TAG_NAME_CHANNEL: measurement_event.active_channel.channel_id
           },
           "time": datetime.datetime.fromtimestamp(measurement_event.time_received).isoformat() + 'Z',
-          "fields": {
-            "value": measurement_event.value
-          }
+          "fields": self.create_measurement_fields(measurement_event)
         }
       ]
 
-      print(json_body)
-      foo = self.persistence_client.write_points(json_body)
-      print(foo)
-      print("Data point persisted")
+      self.persistence_client.write_points(json_body)
     except:
       print(traceback.format_exc())
 
+  def create_measurement_fields(self, measurement_event):
+    """Add in the measurement value into the message to influx.
+    """
+    
+    fields = {
+      "continuous_value": float(measurement_event.value)
+    }
+
+    return fields
+
+    

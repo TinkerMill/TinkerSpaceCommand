@@ -36,13 +36,13 @@ entity_importer = YamlEntityRegistryReader()
 entity_importer.load_registry('sensors.yaml', entity_registry)
 entity_registry.prepare_runtime_models()
 
-entity_registry.get_sensed_active_model('tinkermill.bay.main').register_value_update_observer(SensedPrintObserver())
-entity_registry.get_sensor_active_model('sensor.esp8266.FE13DE').register_value_update_observer(SensorPrintObserver())
+# entity_registry.get_sensed_active_model('tinkermill.bay.main').register_value_update_observer(SensedPrintObserver())
+# entity_registry.get_sensor_active_model('sensor.esp8266.FE13DE').register_value_update_observer(SensorPrintObserver())
 
 server = SpaceCommandServer(config)
 server.sensor_processor = SensorProcessor(entity_registry)
 server.addCommunicationProvider( MqttCommunicationProvider(config) )
-event_persistence = EventPersistence(config)
+event_persistence = InfluxEventPersistence(config)
 event_persistence.attach_sensor_processor(server.sensor_processor)
 event_persistence.start()
 
