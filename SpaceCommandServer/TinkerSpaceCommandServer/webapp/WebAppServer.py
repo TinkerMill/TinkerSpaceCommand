@@ -4,9 +4,10 @@
 # Written by Keith M. Hughes
 #
 
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, request
 import os
 import json
+import datetime
 
 class WebAppServer:
 
@@ -38,6 +39,7 @@ class WebAppServer:
         self.add_endpoint("/api/v1/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
         self.add_endpoint("/api/v1/sensors","api_v1_sensors", self.api_v1_sensors_endpoint)
         self.add_endpoint("/api/v1/sensor/<string:sensor_id>","api_v1_sensor", self.api_v1_sensor_endpoint)
+        self.add_endpoint("/api/v1/query/sensor/<string:sensor_id>","api_v1_query_sensor", self.api_v1_query_sensor_endpoint)
 
     def start(self):
         self.app.run(host='0.0.0.0')
@@ -112,6 +114,23 @@ class WebAppServer:
 
     def api_v1_sensor_endpoint(self, sensor_id=None, *args):
         sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+        
+        template = render_template("sensor.html", sensor=sensor)
+
+        return Response(template, status=200, headers={ 'ContentType': 'application/json'})
+
+    def api_v1_query_sensor_endpoint(self, sensor_id=None, *args):
+        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+
+        channel = request.args['channel']
+        startDateTime = request.args['startDateTime']
+        endDateTime = request.args['endDateTime']
+
+        startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+        endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+        print(startTimestamp)
+        print(endTimestamp)
         
         template = render_template("sensor.html", sensor=sensor)
 
