@@ -71,14 +71,14 @@ class WebAppServer:
 
         template = render_template("sensors.html", sensors=sensors)
         
-        return Response(json.dumps(values), status=200, headers={})
+        return Response(template, status=200, headers={})
 
     def sensor_endpoint(self, sensor_id=None, *args):
         sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
 
         template = render_template("sensor.html", sensor=sensor)
         
-        return Response(json.dumps(value), status=200, headers={})
+        return Response(template, status=200, headers={})
     
 
     def api_v1_spaces_endpoint(self, *args):
@@ -126,11 +126,7 @@ class WebAppServer:
         startDateTime = request.args['startDateTime']
         endDateTime = request.args['endDateTime']
 
-        startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
-        endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
-
-        print(startTimestamp)
-        print(endTimestamp)
+        self.server.event_persistence.get_channel_measurements(channel, startDateTime, endDateTime)
         
         template = render_template("sensor.html", sensor=sensor)
 

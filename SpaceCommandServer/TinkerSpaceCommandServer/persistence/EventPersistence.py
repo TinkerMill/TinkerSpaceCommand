@@ -78,4 +78,40 @@ class InfluxEventPersistence:
 
     return fields
 
+  def get_channel_measurements(self, channel, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where channel = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(channel, startTimestamp, endTimestamp)
+
+    results = self.persistence_client.query(query)
+    print(results)
+
+  def get_sensor_measurements(self, sensor, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensor = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(sensor, startTimestamp, endTimestamp)
+
+    results = self.persistence_client.query(query)
+    print(results)
+
+  def get_sensed_measurements(self, sensed, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensed = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(sensed, startTimestamp, endTimestamp)
+
+    results = self.persistence_client.query(query)
+    print(results)
+    
     
