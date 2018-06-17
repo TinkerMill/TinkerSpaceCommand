@@ -87,8 +87,57 @@ class InfluxEventPersistence:
         
     query = "select * from sensors where channel = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(channel, startTimestamp, endTimestamp)
 
+    time_array = []
+    value_array = []
+    sensor_array = []
+    sensed_array = []
     results = self.persistence_client.query(query)
-    print(results)
+    points = results.get_points('sensors', None)
+    for point in points:
+      time_array.append(point['time'])
+      sensor_array.append(point['sensor'])
+      sensed_array.append(point['sensed'])
+      value_array.append(point['continuous_value'])
+
+    ret = {
+      'data': {
+        'time': time_array,
+        'sensor': sensor_array,
+        'sensed': sensed_array,
+        'value': value_array
+      }
+    }
+
+    return ret
+
+  def get_sensor_channel_measurements(self, sensor_id, channel, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensor = '{0}' and channel = '{1}' and time >= {2:.0f} and time < {3:.0f}".format(sensor_id, channel, startTimestamp, endTimestamp)
+
+    time_array = []
+    value_array = []
+    sensed_array = []
+    results = self.persistence_client.query(query)
+    points = results.get_points('sensors', None)
+    for point in points:
+      time_array.append(point['time'])
+      sensed_array.append(point['sensed'])
+      value_array.append(point['continuous_value'])
+
+    ret = {
+      'data': {
+        'time': time_array,
+        'sensed': sensed_array,
+        'value': value_array
+      }
+    }
+
+    return ret
 
   def get_sensor_measurements(self, sensor, startDateTime, endDateTime):
     startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))

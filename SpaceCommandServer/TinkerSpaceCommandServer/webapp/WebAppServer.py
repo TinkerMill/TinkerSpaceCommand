@@ -126,9 +126,7 @@ class WebAppServer:
         startDateTime = request.args['startDateTime']
         endDateTime = request.args['endDateTime']
 
-        self.server.event_persistence.get_channel_measurements(channel, startDateTime, endDateTime)
+        result = self.server.event_persistence.get_sensor_channel_measurements(sensor_id, channel, startDateTime, endDateTime)
         
-        template = render_template("sensor.html", sensor=sensor)
-
-        return Response(template, status=200, headers={ 'ContentType': 'application/json'})
+        return Response(json.dumps(result), status=200, headers={ 'ContentType': 'application/json'})
 
