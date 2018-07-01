@@ -36,7 +36,7 @@ class WebAppServer:
         self.add_endpoint("/sensors","sensors", self.sensors_endpoint)
         self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
         self.add_endpoint("/api/v1/spaces","api_v1_spaces", self.api_v1_spaces_endpoint)
-        self.add_endpoint("/api/v1/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
+        self.add_endpoint("/api/v1/space/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
         self.add_endpoint("/api/v1/sensors","api_v1_sensors", self.api_v1_sensors_endpoint)
         self.add_endpoint("/api/v1/sensor/<string:sensor_id>","api_v1_sensor", self.api_v1_sensor_endpoint)
         self.add_endpoint("/api/v1/query/sensor/<string:sensor_id>","api_v1_query_sensor", self.api_v1_query_sensor_endpoint)
@@ -82,13 +82,13 @@ class WebAppServer:
     
 
     def api_v1_spaces_endpoint(self, *args):
-        spaces = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
+        space_models = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
         
-        values = []
-        for space in spaces:
-            values.append(self.render_space_data(space))
+        all_space_data = []
+        for space_model in space_models:
+            all_space_data.append(self.render_space_data(space_model))
 
-        return Response(json.dumps(values), status=200, headers={'ContentType': 'application/json'})
+        return Response(json.dumps(all_space_data), status=200, headers={'ContentType': 'application/json'})
 
     def api_v1_space_endpoint(self, space_id=None, *args):
         space = self.server.sensor_processor.entity_registry.get_sensed_active_model(space_id)
@@ -100,24 +100,36 @@ class WebAppServer:
     def render_space_data(self, space):
         space_data = {
             'externalId': space.sensed_entity_description.external_id,
-            'name': space.sensed_entity_description.name
+            'name': space.sensed_entity_description.name,
+            'description': space.sensed_entity_description.description
         }
 
         return space_data
     
     def api_v1_sensors_endpoint(self, *args):
-        sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
-        
-        template = render_template("sensors.html", sensors=sensors)
+        sensor_models = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
 
-        return Response(template, status=200, headers={'ContentType': 'application/json'})
+        all_sensor_data = []
+        for sensor_model in sensor_models:
+            all_sensor_data.append(self.render_sensor_data(sensor_model))
+        
+        return Response(json.dumps(all_sensor_data), status=200, headers={'ContentType': 'application/json'})
 
     def api_v1_sensor_endpoint(self, sensor_id=None, *args):
-        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+        sensor_model = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
         
-        template = render_template("sensor.html", sensor=sensor)
+        sensor_result = self.render_sensor_data(sensor_model)
 
-        return Response(template, status=200, headers={ 'ContentType': 'application/json'})
+        return Response(json.dumps(sensor_result), status=200, headers={ 'ContentType': 'application/json'})
+
+    def render_sensor_data(self, sensor_model):
+        sensor_data = {
+            'externalId': sensor_model.sensor_entity_description.external_id,
+            'name': sensor_model.sensor_entity_description.name,
+            'description': sensor_model.sensor_entity_description.description
+        }
+
+        return sensor_data
 
     def api_v1_query_sensor_endpoint(self, sensor_id=None, *args):
         sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
