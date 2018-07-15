@@ -5,6 +5,7 @@
 #
 
 from flask import Flask, Response, render_template, request
+from flask_cors import CORS
 import os
 import json
 import datetime
@@ -29,6 +30,9 @@ class WebAppServer:
         self.static_dir = os.path.join(os.path.dirname(modpath), "static")
         
         self.app = Flask(name, template_folder=self.template_dir, static_folder=self.static_dir)
+
+        # Set up CORS headers on all API URLs
+        CORS(self.app, resources={r"/api/*": {"origins": "*" }})
         
         self.add_endpoint("/<path:path>","root", self.root_endpoint)
         self.add_endpoint("/spaces","spaces", self.spaces_endpoint)
