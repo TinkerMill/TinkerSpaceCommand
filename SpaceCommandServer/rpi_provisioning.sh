@@ -58,5 +58,6 @@ pip3 install paho-mqtt
 pip3 install pyyaml
 pip3 install rx
 pip3 install flask
+pip3 install flask-cors
 pip3 install influxdb
 
