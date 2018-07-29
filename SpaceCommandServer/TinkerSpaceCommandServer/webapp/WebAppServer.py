@@ -4,8 +4,11 @@
 # Written by Keith M. Hughes
 #
 
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, request
+from flask_cors import CORS
 import os
+import json
+import datetime
 
 class WebAppServer:
 
@@ -27,12 +30,20 @@ class WebAppServer:
         self.static_dir = os.path.join(os.path.dirname(modpath), "static")
         
         self.app = Flask(name, template_folder=self.template_dir, static_folder=self.static_dir)
+
+        # Set up CORS headers on all API URLs
+        CORS(self.app, resources={r"/api/*": {"origins": "*" }})
         
         self.add_endpoint("/<path:path>","root", self.root_endpoint)
         self.add_endpoint("/spaces","spaces", self.spaces_endpoint)
         self.add_endpoint("/space/<string:space_id>","space", self.space_endpoint)
         self.add_endpoint("/sensors","sensors", self.sensors_endpoint)
         self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
+        self.add_endpoint("/api/v1/spaces","api_v1_spaces", self.api_v1_spaces_endpoint)
+        self.add_endpoint("/api/v1/space/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
+        self.add_endpoint("/api/v1/sensors","api_v1_sensors", self.api_v1_sensors_endpoint)
+        self.add_endpoint("/api/v1/sensor/<string:sensor_id>","api_v1_sensor", self.api_v1_sensor_endpoint)
+        self.add_endpoint("/api/v1/query/sensor/<string:sensor_id>","api_v1_query_sensor", self.api_v1_query_sensor_endpoint)
 
     def start(self):
         self.app.run(host='0.0.0.0')
@@ -61,15 +72,77 @@ class WebAppServer:
 
     def sensors_endpoint(self, *args):
         sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
-        
-        template = render_template("sensors.html", sensors=sensors)
 
+        template = render_template("sensors.html", sensors=sensors)
+        
         return Response(template, status=200, headers={})
 
     def sensor_endpoint(self, sensor_id=None, *args):
         sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
-        
-        template = render_template("sensor.html", sensor=sensor)
 
+        template = render_template("sensor.html", sensor=sensor)
+        
         return Response(template, status=200, headers={})
     
+
+    def api_v1_spaces_endpoint(self, *args):
+        space_models = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
+        
+        all_space_data = []
+        for space_model in space_models:
+            all_space_data.append(self.render_space_data(space_model))
+
+        return Response(json.dumps(all_space_data), status=200, headers={'ContentType': 'application/json'})
+
+    def api_v1_space_endpoint(self, space_id=None, *args):
+        space = self.server.sensor_processor.entity_registry.get_sensed_active_model(space_id)
+        
+        value = self.render_space_data(space)
+
+        return Response(json.dumps(value), status=200, headers={'ContentType': 'application/json'})
+
+    def render_space_data(self, space):
+        space_data = {
+            'externalId': space.sensed_entity_description.external_id,
+            'name': space.sensed_entity_description.name,
+            'description': space.sensed_entity_description.description
+        }
+
+        return space_data
+    
+    def api_v1_sensors_endpoint(self, *args):
+        sensor_models = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
+
+        all_sensor_data = []
+        for sensor_model in sensor_models:
+            all_sensor_data.append(self.render_sensor_data(sensor_model))
+        
+        return Response(json.dumps(all_sensor_data), status=200, headers={'ContentType': 'application/json'})
+
+    def api_v1_sensor_endpoint(self, sensor_id=None, *args):
+        sensor_model = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+        
+        sensor_result = self.render_sensor_data(sensor_model)
+
+        return Response(json.dumps(sensor_result), status=200, headers={ 'ContentType': 'application/json'})
+
+    def render_sensor_data(self, sensor_model):
+        sensor_data = {
+            'externalId': sensor_model.sensor_entity_description.external_id,
+            'name': sensor_model.sensor_entity_description.name,
+            'description': sensor_model.sensor_entity_description.description
+        }
+
+        return sensor_data
+
+    def api_v1_query_sensor_endpoint(self, sensor_id=None, *args):
+        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
+
+        channel = request.args['channel']
+        startDateTime = request.args['startDateTime']
+        endDateTime = request.args['endDateTime']
+
+        result = self.server.event_persistence.get_sensor_channel_measurements(sensor_id, channel, startDateTime, endDateTime)
+        
+        return Response(json.dumps(result), status=200, headers={ 'ContentType': 'application/json'})
+

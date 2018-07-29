@@ -25,7 +25,7 @@ class EventPersistenceObserver(Observer):
   def on_error(self, error):
     print("Event persistence subject Error Occurred: {0}".format(error))
     
-class EventPersistence:
+class InfluxEventPersistence:
   def __init__(self, config):
     self.persistence_observer = EventPersistenceObserver(self)
 
@@ -51,7 +51,6 @@ class EventPersistence:
 
   def persist_measurement(self, measurement_event):
     try:
-      print("Perparing persist")
       json_body = [
         {
           "measurement": Constants.INFLUXDB_MEASUREMENT_NAME_SENSORS,
@@ -61,16 +60,107 @@ class EventPersistence:
             Constants.INFLUXDB_TAG_NAME_CHANNEL: measurement_event.active_channel.channel_id
           },
           "time": datetime.datetime.fromtimestamp(measurement_event.time_received).isoformat() + 'Z',
-          "fields": {
-            "value": measurement_event.value
-          }
+          "fields": self.create_measurement_fields(measurement_event)
         }
       ]
 
-      print(json_body)
-      foo = self.persistence_client.write_points(json_body)
-      print(foo)
-      print("Data point persisted")
+      self.persistence_client.write_points(json_body)
     except:
       print(traceback.format_exc())
 
+  def create_measurement_fields(self, measurement_event):
+    """Add in the measurement value into the message to influx.
+    """
+    
+    fields = {
+      "continuous_value": float(measurement_event.value)
+    }
+
+    return fields
+
+  def get_channel_measurements(self, channel, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where channel = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(channel, startTimestamp, endTimestamp)
+
+    time_array = []
+    value_array = []
+    sensor_array = []
+    sensed_array = []
+    results = self.persistence_client.query(query)
+    points = results.get_points('sensors', None)
+    for point in points:
+      time_array.append(point['time'])
+      sensor_array.append(point['sensor'])
+      sensed_array.append(point['sensed'])
+      value_array.append(point['continuous_value'])
+
+    ret = {
+      'data': {
+        'time': time_array,
+        'sensor': sensor_array,
+        'sensed': sensed_array,
+        'value': value_array
+      }
+    }
+
+    return ret
+
+  def get_sensor_channel_measurements(self, sensor_id, channel, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensor = '{0}' and channel = '{1}' and time >= {2:.0f} and time < {3:.0f}".format(sensor_id, channel, startTimestamp, endTimestamp)
+
+    time_array = []
+    value_array = []
+    sensed_array = []
+    results = self.persistence_client.query(query)
+    points = results.get_points('sensors', None)
+    for point in points:
+      time_array.append(point['time'])
+      sensed_array.append(point['sensed'])
+      value_array.append(point['continuous_value'])
+
+    ret = {
+      'data': {
+        'time': time_array,
+        'sensed': sensed_array,
+        'value': value_array
+      }
+    }
+
+    return ret
+
+  def get_sensor_measurements(self, sensor, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensor = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(sensor, startTimestamp, endTimestamp)
+
+    results = self.persistence_client.query(query)
+    print(results)
+
+  def get_sensed_measurements(self, sensed, startDateTime, endDateTime):
+    startTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(startDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+    endTimestamp = datetime.datetime.timestamp(datetime.datetime.strptime(endDateTime, "%Y-%m-%dT%H:%M:%S%Z"))
+
+    startTimestamp = startTimestamp * 1000000000
+    endTimestamp = endTimestamp * 1000000000
+        
+    query = "select * from sensors where sensed = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(sensed, startTimestamp, endTimestamp)
+
+    results = self.persistence_client.query(query)
+    print(results)
+    
+    
