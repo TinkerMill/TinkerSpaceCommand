@@ -4,7 +4,7 @@
 
     <div class="menu">
       <ul>
-        <li><router-link to="/locations">Locations</router-link></li>
+        <li><router-link to="/spaces">Spaces</router-link></li>
         <li><router-link to="/sensors">Sensors</router-link></li>
       </ul>
     </div>

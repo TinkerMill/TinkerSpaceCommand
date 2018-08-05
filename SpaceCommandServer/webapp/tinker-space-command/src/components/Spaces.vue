@@ -1,29 +1,31 @@
 <template>
   <div class="hello">
-    <h2>Sensor: {{sensor.name}}</h2>
+    <h2>Spaces</h2>
 
-    <p>{{ sensor.externalId }}</p>
-    <p v-if="sensor.description">{{ sensor.description }}</p>
+    <table>
+      <tr v-for="space in spaces">
+        <td><router-link :to="'/space/' + space.externalId">Details</router-link></td>
+        <td>{{space.name}}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <script>
 import TinkerSpaceCommandApi from '@/services/api/TinkerSpaceCommandApi'
-
 export default {
-  name: 'Sensor',
+  name: 'Spaces',
   data () {
     return {
-      sensorId: this.$route.params.id,
-      sensor: null
-      
+      loading: true,
+      spaces: []
     }
   },
 
   created () {
-    TinkerSpaceCommandApi.getSensor(this.sensorId).subscribe(sensor => {
-      this.sensor = sensor
-      console.log(sensor)
+    TinkerSpaceCommandApi.getSpaces().subscribe(spaces => {
+      this.spaces = spaces
+      console.log(spaces)
     })
   }
 }

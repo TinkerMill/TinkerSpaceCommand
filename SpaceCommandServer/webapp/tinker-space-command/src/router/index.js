@@ -3,8 +3,8 @@ import Router from 'vue-router'
 import Dashboard from '@/components/Dashboard'
 import Sensors from '@/components/Sensors'
 import Sensor from '@/components/Sensor'
-import Locations from '@/components/Locations'
-import Location from '@/components/Location'
+import Spaces from '@/components/Spaces'
+import Space from '@/components/Space'
 
 Vue.use(Router)
 
@@ -26,14 +26,14 @@ export default new Router({
       component: Sensor
     },
     {
-      path: '/locations',
-      name: 'Locations',
-      component: Locations
+      path: '/spaces',
+      name: 'Spaces',
+      component: Spaces
     },
     {
-      path: '/location/:id',
-      name: 'Location',
-      component: Location
+      path: '/space/:id',
+      name: 'Space',
+      component: Space
     }
   ]
 })

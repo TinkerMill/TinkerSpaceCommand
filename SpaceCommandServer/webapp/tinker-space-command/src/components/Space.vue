@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
-    <h2>Sensor: {{sensor.name}}</h2>
+    <h2>Space: {{space.name}}</h2>
 
-    <p>{{ sensor.externalId }}</p>
-    <p v-if="sensor.description">{{ sensor.description }}</p>
+    <p>{{ space.externalId }}</p>
+    <p v-if="space.description">{{ space.description }}</p>
   </div>
 </template>
 
@@ -11,19 +11,19 @@
 import TinkerSpaceCommandApi from '@/services/api/TinkerSpaceCommandApi'
 
 export default {
-  name: 'Sensor',
+  name: 'Space',
   data () {
     return {
-      sensorId: this.$route.params.id,
-      sensor: null
+      spaceId: this.$route.params.id,
+      space: null
       
     }
   },
 
   created () {
-    TinkerSpaceCommandApi.getSensor(this.sensorId).subscribe(sensor => {
-      this.sensor = sensor
-      console.log(sensor)
+    TinkerSpaceCommandApi.getSpace(this.spaceId).subscribe(space => {
+      this.space = space
+      console.log(space)
     })
   }
 }

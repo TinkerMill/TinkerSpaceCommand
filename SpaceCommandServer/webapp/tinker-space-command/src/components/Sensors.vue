@@ -1,17 +1,34 @@
 <template>
   <div class="hello">
     <h2>Sensors</h2>
-    <p>{{ msg }}</p>
+
+    <table>
+      <tr v-for="sensor in sensors">
+        <td><router-link :to="'/sensor/' + sensor.externalId">Details</router-link></td>
+        <td>{{sensor.name}}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <script>
+
+import TinkerSpaceCommandApi from '@/services/api/TinkerSpaceCommandApi'
+
 export default {
   name: 'Sensors',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      loading: true,
+      sensors: []
     }
+  },
+
+  created () {
+    TinkerSpaceCommandApi.getSensors().subscribe(sensors => {
+      this.sensors = sensors
+      console.log(sensors)
+    })
   }
 }
 </script>
