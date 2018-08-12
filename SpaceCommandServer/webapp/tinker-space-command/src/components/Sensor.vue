@@ -2,8 +2,41 @@
   <div class="hello">
     <h2>Sensor: {{sensor.name}}</h2>
 
-    <p>{{ sensor.externalId }}</p>
     <p v-if="sensor.description">{{ sensor.description }}</p>
+    <table>
+      <tr>
+        <th>External ID</th>
+	<td>{{ sensor.externalId }}</td>
+      </tr>
+      <tr>
+        <th>Online</th>
+	<td>{{ sensor.online }}</td>
+      </tr>
+      <tr>
+        <th>Last Value Received</th>
+	<td>{{ sensor.timeLastValueReceived }}</td>
+      </tr>
+      <tr>
+        <th>Last Heartbeat Received</th>
+	<td>{{ sensor.timeLastHeartbeatReceived }}</td>
+      </tr>
+    </table>
+
+    <h3>Channels</h3>
+    
+    <table>
+      <tr>
+        <th>Channel</th>
+	<th>Sensed</th>
+	<th>Last Value</th>
+      </tr>
+      <tr v-for="channel in sensor.activeChannels">
+        <td>{{channel.channelName}}</td>
+        <td><router-link :to="'/space/' + channel.sensedItemId">{{ channel.sensedItemName }}</router-link></td>
+        <td>{{channel.currentValue}}</td>
+      </tr>
+    </table>
+
   </div>
 </template>
 
@@ -45,4 +78,9 @@ li {
 a {
   color: #42b983;
 }
+th {
+  text-align: left;
+  padding-right: 1em;
+}
+
 </style>
