@@ -105,7 +105,7 @@ class WebAppServer:
         space_data = {
             'externalId': space.sensed_entity_description.external_id,
             'name': space.sensed_entity_description.name,
-            'description': space.sensed_entity_description.description
+            'description': space.sensed_entity_description.description,
         }
 
         return space_data
@@ -127,10 +127,25 @@ class WebAppServer:
         return Response(json.dumps(sensor_result), status=200, headers={ 'ContentType': 'application/json'})
 
     def render_sensor_data(self, sensor_model):
+        active_channels = []
+        for channel in sensor_model.get_active_channels():
+            channel_data = {
+                'channelName': channel.channel_description.name,
+                'sensedItemName': channel.sensed_entity_active_model.sensed_entity_description.name,
+                'sensedItemId': channel.sensed_entity_active_model.sensed_entity_description.external_id,
+                'currentValue': channel.current_value
+            }
+
+            active_channels.append(channel_data)
+        
         sensor_data = {
             'externalId': sensor_model.sensor_entity_description.external_id,
             'name': sensor_model.sensor_entity_description.name,
-            'description': sensor_model.sensor_entity_description.description
+            'description': sensor_model.sensor_entity_description.description,
+            'online': sensor_model._online,
+            'timeLastValueReceived':  sensor_model.value_last_time_received_fmt(),
+            'timeLastHeartbeatReceived':  sensor_model.heartbeat_last_time_received_fmt(),
+            'activeChannels': active_channels
         }
 
         return sensor_data
