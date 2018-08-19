@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
-    <h2>Sensor: {{sensor.name}}</h2>
-
+    <h2>Sensor: {{sensor.name}}, Channel: {{channelId}}</h2>
+{{dateStart}} {{dateEnd}}
     <p v-if="sensor.description">{{ sensor.description }}</p>
     <table>
       <tr>
@@ -26,31 +26,44 @@
     
     <table>
       <tr>
-        <th>Commands</th>
         <th>Channel</th>
 	<th>Sensed</th>
-	<th>Last Value</th>
+        <th>Last Value</th>
       </tr>
       <tr :key="channel.channelId" v-for="channel in sensor.activeChannels">
-        <td><router-link :to="'/sensordataplot/' + sensor.externalId + '/' + channel.channelId">Plot</router-link></td>
         <td>{{channel.channelName}}</td>
         <td><router-link :to="'/space/' + channel.sensedItemId">{{ channel.sensedItemName }}</router-link></td>
         <td>{{channel.currentValue}}</td>
       </tr>
     </table>
 
+    <div>
+      <date-picker v-model="dateStart" lang="en"></date-picker>
+      <date-picker v-model="dateEnd" lang="en"></date-picker>
+    </div>
+    <div>
+      <button v-on:click="plot(0)"  type="button" :disabled="disabled">Plot</button>
+    </div>
   </div>
 </template>
 
 <script>
 import TinkerSpaceCommandApi from '@/services/api/TinkerSpaceCommandApi'
+import DatePicker from 'vue2-datepicker'
+import plotly from 'plotly.js'
+import moment from 'moment'
 
 export default {
-  name: 'Sensor',
+  name: 'SensorDataPlot',
+  components: { DatePicker },
   data () {
     return {
       sensorId: this.$route.params.id,
-      sensor: null
+      channelId: this.$route.params.channel,
+      sensor: null,
+      dateStart: '',
+      dateEnd: '',
+      disabled: false
     }
   },
 
@@ -59,6 +72,12 @@ export default {
       this.sensor = sensor
       console.log(sensor)
     })
+  },
+
+  methods: {
+    plot (arg) {
+      alert("Plotting")
+    }
   }
 }
 </script>

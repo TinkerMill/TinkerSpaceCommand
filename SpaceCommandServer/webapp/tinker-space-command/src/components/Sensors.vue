@@ -3,7 +3,7 @@
     <h2>Sensors</h2>
 
     <table>
-      <tr v-for="sensor in sensors">
+      <tr :key="sensor.sensorId" v-for="sensor in sensors">
         <td><router-link :to="'/sensor/' + sensor.externalId">Details</router-link></td>
         <td>{{sensor.name}}</td>
       </tr>

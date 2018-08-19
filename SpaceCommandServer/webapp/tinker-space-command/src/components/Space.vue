@@ -16,7 +16,6 @@ export default {
     return {
       spaceId: this.$route.params.id,
       space: null
-      
     }
   },
 

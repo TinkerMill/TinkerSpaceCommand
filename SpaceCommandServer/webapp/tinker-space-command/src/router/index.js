@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Dashboard from '@/components/Dashboard'
 import Sensors from '@/components/Sensors'
 import Sensor from '@/components/Sensor'
+import SensorDataPlot from '@/components/SensorDataPlot'
 import Spaces from '@/components/Spaces'
 import Space from '@/components/Space'
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/sensor/:id',
       name: 'Sensor',
       component: Sensor
+    },
+    {
+      path: '/sensordataplot/:id/:channel',
+      name: 'SensorDataPlot',
+      component: SensorDataPlot
     },
     {
       path: '/spaces',

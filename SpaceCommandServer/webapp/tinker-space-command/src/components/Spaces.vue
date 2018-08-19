@@ -3,7 +3,7 @@
     <h2>Spaces</h2>
 
     <table>
-      <tr v-for="space in spaces">
+      <tr :key="space.externalId" v-for="space in spaces">
         <td><router-link :to="'/space/' + space.externalId">Details</router-link></td>
         <td>{{space.name}}</td>
       </tr>
