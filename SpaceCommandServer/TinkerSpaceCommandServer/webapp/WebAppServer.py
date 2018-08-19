@@ -130,6 +130,7 @@ class WebAppServer:
         active_channels = []
         for channel in sensor_model.get_active_channels():
             channel_data = {
+                'channelId': channel.channel_description.external_id,
                 'channelName': channel.channel_description.name,
                 'sensedItemName': channel.sensed_entity_active_model.sensed_entity_description.name,
                 'sensedItemId': channel.sensed_entity_active_model.sensed_entity_description.external_id,
