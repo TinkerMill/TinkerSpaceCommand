@@ -87,6 +87,8 @@ class InfluxEventPersistence:
         
     query = "select * from sensors where channel = '{0}' and time >= {1:.0f} and time < {2:.0f}".format(channel, startTimestamp, endTimestamp)
 
+    date_time_array = []
+    date_array = []
     time_array = []
     value_array = []
     sensor_array = []
@@ -94,14 +96,20 @@ class InfluxEventPersistence:
     results = self.persistence_client.query(query)
     points = results.get_points('sensors', None)
     for point in points:
-      time_array.append(point['time'])
+      date_time = point['time']
+      date_time_split = date_time.split('T')
+      date_array.append(date_time_split[0])
+      time_array.append(date_time_split[1].split('.')[0])
+      date_time_array.append(date_time)
       sensor_array.append(point['sensor'])
       sensed_array.append(point['sensed'])
       value_array.append(point['continuous_value'])
 
     ret = {
       'data': {
+        'dateTime': date_time_array,
         'time': time_array,
+        'date': date_array,
         'sensor': sensor_array,
         'sensed': sensed_array,
         'value': value_array
@@ -119,18 +127,26 @@ class InfluxEventPersistence:
         
     query = "select * from sensors where sensor = '{0}' and channel = '{1}' and time >= {2:.0f} and time < {3:.0f}".format(sensor_id, channel, startTimestamp, endTimestamp)
 
+    date_time_array = []
+    date_array = []
     time_array = []
     value_array = []
     sensed_array = []
     results = self.persistence_client.query(query)
     points = results.get_points('sensors', None)
     for point in points:
-      time_array.append(point['time'])
+      date_time = point['time']
+      date_time_split = date_time.split('T')
+      date_time_array.append(date_time)
+      date_array.append(date_time_split[0])
+      time_array.append(date_time_split[1].split('.')[0])
       sensed_array.append(point['sensed'])
       value_array.append(point['continuous_value'])
 
     ret = {
       'data': {
+        'dateTime': date_time_array,
+        'date': date_array,
         'time': time_array,
         'sensed': sensed_array,
         'value': value_array
