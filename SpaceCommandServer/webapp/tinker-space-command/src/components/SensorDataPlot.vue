@@ -38,12 +38,13 @@
     </table>
 
     <div>
-      <date-picker v-model="dateStart" lang="en"></date-picker>
-      <date-picker v-model="dateEnd" lang="en"></date-picker>
+      <date-picker v-model="dateStart" lang="en" format="YYYY-MM-DD" ></date-picker>
+      <date-picker v-model="dateEnd" lang="en" format="YYYY-MM-DD"></date-picker>
     </div>
     <div>
       <button v-on:click="plot(0)"  type="button" :disabled="disabled">Plot</button>
     </div>
+    <div id='chart'></div>
   </div>
 </template>
 
@@ -76,7 +77,64 @@ export default {
 
   methods: {
     plot (arg) {
-      alert("Plotting")
+      var startDate = moment(this.dateStart).format('YYYY-MM-DD');
+      var endDate = moment(this.dateEnd).format('YYYY-MM-DD');
+      TinkerSpaceCommandApi.getSensorChannelDataQuery(this.sensorId, this.channelId, startDate, endDate).subscribe(data => {
+        console.log(data);
+        this.drawPlot(data);
+      });
+    },
+
+    drawPlot(dataResult) {
+      var values = dataResult.data.value;
+      var dateTimes = dataResult.data.dateTime;
+      
+      var trace1 = {
+        x: dateTimes,
+        y: values,
+        mode: 'markers',
+        name: 'data',
+        type: 'scatter',
+      };
+
+      var data = [trace1];
+
+      var layout = {
+        hovermode: 'closest',
+        shapes: [
+          {
+            fillcolor: 'rgb(44, 160, 44)',
+            line: {
+              color: 'rgba(68, 68, 68, 100)',
+              width: 0
+            },
+            opacity: 0.3,
+            type: 'rectangle',
+            x0: 0,
+            x1: 1,
+            xref: 'paper',
+            y0: 70,
+            y1: 81,
+            yref: 'y'
+          }
+        ],
+        showlegend: true,
+        xaxis: {
+          autorange: true,
+          range: [dateTimes[0], dateTimes[dateTimes.length - 1]],
+          title: 'C',
+          type: 'category'
+        },
+        yaxis: {
+          autorange: false,
+          range: [60, 95],
+          title: 'data',
+          type: 'linear'
+        }
+      };
+
+      var element = document.getElementById('chart');
+      plotly.plot(element, data, layout);
     }
   }
 }

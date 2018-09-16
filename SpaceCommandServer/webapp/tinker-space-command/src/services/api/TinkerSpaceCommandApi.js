@@ -8,13 +8,18 @@ const http = new Rxios({
 
 export default {
   getSensors () {
-    console.log('Calling getSensors yada')
     return http.get('/sensors')
   },
 
   getSensor (sensorId) {
-    console.log('Calling getSensor yada')
     return http.get('/sensor/' + sensorId)
+  },
+
+  getSensorChannelDataQuery (sensorId, channelId, startDate, endDate) {
+      return http.get(
+          '/query/sensor/' + sensorId + '?channel=' + channelId +
+          '&startDateTime=' + startDate + 'T00:00:00MST' +
+          '&endDateTime=' + endDate + 'T00:00:00MST' )
   },
 
   getSpaces () {
