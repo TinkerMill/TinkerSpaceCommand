@@ -4,7 +4,7 @@
 # Written by Keith M. Hughes
 #
 
-from flask import Flask, Response, render_template, request
+from flask import Flask, Response, render_template, request, send_from_directory
 from flask_cors import CORS
 import os
 import json
@@ -28,17 +28,17 @@ class WebAppServer:
 
         self.template_dir = os.path.join(os.path.dirname(modpath), "templates")
         self.static_dir = os.path.join(os.path.dirname(modpath), "static")
+        self.js_static_dir = os.path.join(os.path.dirname(modpath), "static/static/js")
+        self.css_static_dir = os.path.join(os.path.dirname(modpath), "static/static/css")
         
         self.app = Flask(name, template_folder=self.template_dir, static_folder=self.static_dir)
 
         # Set up CORS headers on all API URLs
         CORS(self.app, resources={r"/api/*": {"origins": "*" }})
         
-        self.add_endpoint("/<path:path>","root", self.root_endpoint)
-        self.add_endpoint("/spaces","spaces", self.spaces_endpoint)
-        self.add_endpoint("/space/<string:space_id>","space", self.space_endpoint)
-        self.add_endpoint("/sensors","sensors", self.sensors_endpoint)
-        self.add_endpoint("/sensor/<string:sensor_id>","sensor", self.sensor_endpoint)
+        self.add_endpoint("/","root", self.root_endpoint)
+        self.add_endpoint("/static/js/<path:path>","jsroot", self.jsroot_endpoint)
+        self.add_endpoint("/static/css/<path:path>","cssroot", self.cssroot_endpoint)
         self.add_endpoint("/api/v1/spaces","api_v1_spaces", self.api_v1_spaces_endpoint)
         self.add_endpoint("/api/v1/space/<string:space_id>","api_v1_space", self.api_v1_space_endpoint)
         self.add_endpoint("/api/v1/sensors","api_v1_sensors", self.api_v1_sensors_endpoint)
@@ -52,38 +52,15 @@ class WebAppServer:
         self.app.add_url_rule(endpoint, endpoint_name, handler)
 
     def root_endpoint(self, path=None, *args):
-        template = render_template("foo.html", name="Keith")
+        return self.app.send_static_file('index.html')
 
-        return Response(template, status=200, headers={})
+    def jsroot_endpoint(self, path=None, *args):
+        print(path)
+        return send_from_directory(self.js_static_dir, path)
 
-    def spaces_endpoint(self, *args):
-        spaces = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()
-        
-        template = render_template("spaces.html", spaces=spaces)
-
-        return Response(template, status=200, headers={})
-
-    def space_endpoint(self, space_id=None, *args):
-        space = self.server.sensor_processor.entity_registry.get_sensed_active_model(space_id)
-        
-        template = render_template("space.html", space=space)
-
-        return Response(template, status=200, headers={})
-
-    def sensors_endpoint(self, *args):
-        sensors = self.server.sensor_processor.entity_registry.sensor_entity_active_models.values()
-
-        template = render_template("sensors.html", sensors=sensors)
-        
-        return Response(template, status=200, headers={})
-
-    def sensor_endpoint(self, sensor_id=None, *args):
-        sensor = self.server.sensor_processor.entity_registry.get_sensor_active_model(sensor_id)
-
-        template = render_template("sensor.html", sensor=sensor)
-        
-        return Response(template, status=200, headers={})
-    
+    def cssroot_endpoint(self, path=None, *args):
+        print(path)
+        return send_from_directory(self.css_static_dir, path)
 
     def api_v1_spaces_endpoint(self, *args):
         space_models = self.server.sensor_processor.entity_registry.sensed_entity_active_models.values()

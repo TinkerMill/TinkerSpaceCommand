@@ -10,26 +10,26 @@
       </tr>
       <tr>
         <th>Online</th>
-	<td>{{ sensor.online }}</td>
+        <td>{{ sensor.online }}</td>
       </tr>
       <tr>
         <th>Last Value Received</th>
-	<td>{{ sensor.timeLastValueReceived }}</td>
+        <td>{{ sensor.timeLastValueReceived }}</td>
       </tr>
       <tr>
         <th>Last Heartbeat Received</th>
-	<td>{{ sensor.timeLastHeartbeatReceived }}</td>
+        <td>{{ sensor.timeLastHeartbeatReceived }}</td>
       </tr>
     </table>
 
     <h3>Channels</h3>
-    
+
     <table>
       <tr>
         <th>Commands</th>
         <th>Channel</th>
-	<th>Sensed</th>
-	<th>Last Value</th>
+        <th>Sensed</th>
+        <th>Last Value</th>
       </tr>
       <tr :key="channel.channelId" v-for="channel in sensor.activeChannels">
         <td><router-link :to="'/sensordataplot/' + sensor.externalId + '/' + channel.channelId">Plot</router-link></td>
@@ -38,7 +38,6 @@
         <td>{{channel.currentValue}}</td>
       </tr>
     </table>
-
   </div>
 </template>
 

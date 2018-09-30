@@ -1,7 +1,6 @@
 <template>
   <div class="hello">
     <h2>Sensor: {{sensor.name}}, Channel: {{channelId}}</h2>
-{{dateStart}} {{dateEnd}}
     <p v-if="sensor.description">{{ sensor.description }}</p>
     <table>
       <tr>
@@ -10,24 +9,24 @@
       </tr>
       <tr>
         <th>Online</th>
-	<td>{{ sensor.online }}</td>
+        <td>{{ sensor.online }}</td>
       </tr>
       <tr>
         <th>Last Value Received</th>
-	<td>{{ sensor.timeLastValueReceived }}</td>
+        <td>{{ sensor.timeLastValueReceived }}</td>
       </tr>
       <tr>
         <th>Last Heartbeat Received</th>
-	<td>{{ sensor.timeLastHeartbeatReceived }}</td>
+        <td>{{ sensor.timeLastHeartbeatReceived }}</td>
       </tr>
     </table>
 
     <h3>Channels</h3>
-    
+
     <table>
       <tr>
         <th>Channel</th>
-	<th>Sensed</th>
+        <th>Sensed</th>
         <th>Last Value</th>
       </tr>
       <tr :key="channel.channelId" v-for="channel in sensor.activeChannels">
@@ -77,27 +76,34 @@ export default {
 
   methods: {
     plot (arg) {
-      var startDate = moment(this.dateStart).format('YYYY-MM-DD');
-      var endDate = moment(this.dateEnd).format('YYYY-MM-DD');
+      var startDate = moment(this.dateStart).format('YYYY-MM-DD')
+      var endDate = moment(this.dateEnd).format('YYYY-MM-DD')
       TinkerSpaceCommandApi.getSensorChannelDataQuery(this.sensorId, this.channelId, startDate, endDate).subscribe(data => {
-        console.log(data);
-        this.drawPlot(data);
-      });
+        console.log(data)
+        this.drawPlot(data)
+      })
     },
 
-    drawPlot(dataResult) {
-      var values = dataResult.data.value;
-      var dateTimes = dataResult.data.dateTime;
-      
+    drawPlot (dataResult) {
+      var values = dataResult.data.value
+      var dateTimes = dataResult.data.dateTime
+
+      var yRange = []
+      if (this.channelId === 'humidity') {
+        yRange = [20, 40]
+      } else if (this.channelId === 'temperature') {
+        yRange = [50, 100]
+      }
+
       var trace1 = {
         x: dateTimes,
         y: values,
         mode: 'markers',
         name: 'data',
-        type: 'scatter',
-      };
+        type: 'scatter'
+      }
 
-      var data = [trace1];
+      var data = [trace1]
 
       var layout = {
         hovermode: 'closest',
@@ -126,15 +132,16 @@ export default {
           type: 'category'
         },
         yaxis: {
-          autorange: false,
-          range: [60, 95],
+          autorange: true,
+          range: yRange,
           title: 'data',
           type: 'linear'
         }
-      };
+      }
 
-      var element = document.getElementById('chart');
-      plotly.plot(element, data, layout);
+      var element = document.getElementById('chart')
+      plotly.purge(element)
+      plotly.plot(element, data, layout)
     }
   }
 }

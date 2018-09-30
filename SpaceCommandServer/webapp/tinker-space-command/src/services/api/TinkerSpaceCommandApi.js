@@ -16,19 +16,17 @@ export default {
   },
 
   getSensorChannelDataQuery (sensorId, channelId, startDate, endDate) {
-      return http.get(
-          '/query/sensor/' + sensorId + '?channel=' + channelId +
-          '&startDateTime=' + startDate + 'T00:00:00MST' +
-          '&endDateTime=' + endDate + 'T00:00:00MST' )
+    return http.get(
+      '/query/sensor/' + sensorId + '?channel=' + channelId +
+      '&startDateTime=' + startDate + 'T00:00:00MST' +
+      '&endDateTime=' + endDate + 'T00:00:00MST')
   },
 
   getSpaces () {
-    console.log('Calling getSpaces yada')
     return http.get('/spaces')
   },
 
   getSpace (spaceId) {
-    console.log('Calling getSpace yada')
     return http.get('/space/' + spaceId)
   }
 }

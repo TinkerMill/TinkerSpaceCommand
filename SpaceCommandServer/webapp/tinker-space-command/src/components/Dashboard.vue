@@ -9,7 +9,7 @@ export default {
   name: 'Dashboard',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Tinkermill Space Command!'
     }
   }
 }
