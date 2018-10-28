@@ -43,6 +43,9 @@
     <div>
       <button v-on:click="plot(0)"  type="button" :disabled="disabled">Plot</button>
     </div>
+    <div v-show="loading">
+      <md-progress-bar md-mode="indeterminate"></md-progress-bar>
+    </div>
     <div id='chart'></div>
   </div>
 </template>
@@ -63,7 +66,8 @@ export default {
       sensor: null,
       dateStart: '',
       dateEnd: '',
-      disabled: false
+      disabled: false,
+      loading: false
     }
   },
 
@@ -78,6 +82,7 @@ export default {
     plot (arg) {
       var startDate = moment(this.dateStart).format('YYYY-MM-DD')
       var endDate = moment(this.dateEnd).format('YYYY-MM-DD')
+      this.loading = true
       TinkerSpaceCommandApi.getSensorChannelDataQuery(this.sensorId, this.channelId, startDate, endDate).subscribe(data => {
         console.log(data)
         this.drawPlot(data)
@@ -85,6 +90,7 @@ export default {
     },
 
     drawPlot (dataResult) {
+      this.loading = false
       var values = dataResult.data.value
       var dateTimes = dataResult.data.dateTime
 
@@ -167,5 +173,7 @@ th {
   text-align: left;
   padding-right: 1em;
 }
-
+.md-progress-bar {
+  margin: 24px;
+}
 </style>
